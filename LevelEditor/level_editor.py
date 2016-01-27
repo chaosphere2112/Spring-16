@@ -23,6 +23,8 @@ class LevelEditor(QtGui.QWidget):
         def set_levels(levels):
             self.levels = levels
 
+        minval, maxval = vcs.minmax(variable)
+
         self.levelsChanged.connect(update_level_label)
 
         layout.addWidget(self.level_label)
