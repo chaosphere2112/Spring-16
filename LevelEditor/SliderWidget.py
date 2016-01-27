@@ -1,6 +1,5 @@
 from PySide.QtCore import *
 from PySide.QtGui import *
-from numpy import mean
 from collections import OrderedDict
 
 sliders = None
@@ -87,8 +86,6 @@ class AdjustValues(QWidget):
                 self.slides[cur_slide]["p"] = cur_slide.sliderPosition()
                 self.slides[cur_slide]["l"].setText(str(cur_slide.sliderPosition()))
 
-
-
     def moved_backward(self, cur_slide):
         keys = self.slides.keys()
         start = None
@@ -139,12 +136,13 @@ class AdjustValues(QWidget):
     def change_label(self, lab, slide):
         def adj_text():
             lab.setText(str(slide.sliderPosition()))
+
         return adj_text
 
     def remove_level(self, row):
         def perform_remove():
 
-            #remove from dictionary
+            # remove from dictionary
 
             child = row.takeAt(0)
             while child:
@@ -158,6 +156,7 @@ class AdjustValues(QWidget):
             row.deleteLater()
 
             self.slider_count -= 1
+
         return perform_remove
 
     def insert_line(self):
@@ -181,17 +180,3 @@ class AdjustValues(QWidget):
         slide.sliderMoved.connect(self.change_label(lab, slide))
         slide.sliderMoved.connect(self.adjust_slides(slide))
         rem_button.clicked.connect(self.remove_level(row))
-
-
-'''
- def launch_adjuster(val_list, min_val, max_val):
-    global sliders
-    sliders = AdjustValues(val_list, min_val, max_val)
-
-    sliders.setWindowTitle("Adjust Values")
-    # sliders.setMinimumSize(200, 300)
-    sliders.setMinimumSize(400, 500)
-    sliders.setMaximumSize(400, 800)
-
-    sliders.show()
-'''
