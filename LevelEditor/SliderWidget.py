@@ -10,7 +10,6 @@ class AdjustValues(QWidget):
 
     def __init__(self, val_list, min_val, max_val):
         super(AdjustValues, self).__init__()
-        self.val_list = val_list
         self.min_val = min_val
         self.max_val = max_val
         self.slides = []
