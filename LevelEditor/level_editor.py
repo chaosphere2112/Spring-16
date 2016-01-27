@@ -1,6 +1,7 @@
 from PySide import QtGui, QtCore
 import cdms2
 import vcs
+import SliderWidget
 
 
 class LevelEditor(QtGui.QWidget):
@@ -24,10 +25,15 @@ class LevelEditor(QtGui.QWidget):
             self.levels = levels
 
         minval, maxval = vcs.minmax(variable)
-
+        if levels is None:
+            levels = vcs.utils.mkscale(*vcs.minmax(self.variable))
+        self.sliderWidget = SliderWidget.AdjustValues(levels, minval, maxval)
+        self.sliderWidget.valuesChanged.connect(set_levels)
         self.levelsChanged.connect(update_level_label)
 
+
         layout.addWidget(self.level_label)
+        layout.addWidget(self.sliderWidget)
         self.setLayout(layout)
 
     def show(self):
@@ -45,7 +51,7 @@ class LevelEditor(QtGui.QWidget):
         return self._levels
 
     @levels.setter
-    def set_levels(self, levels):
+    def levels(self, levels):
         if levels is None:
             self._levels = None
             levels = self.levels
