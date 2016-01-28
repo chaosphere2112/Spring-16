@@ -4,6 +4,8 @@ dataset = cdms2.open(vcs.sample_data + "/clt.nc")
 clt = dataset('clt')
 
 timeaxis = clt.getTime()
+for row in timeaxis:
+    print row
 lataxis = clt.getLatitude()
 lonaxis = clt.getLongitude()
 
