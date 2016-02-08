@@ -13,7 +13,6 @@ class InputChecker(QValidator):
         self.index = index
 
     def validate(self, input, pos):
-        print input, self.texts, self.index
         if input in self.texts:
             if self.texts.index(input) != self.index:
                 self.inputInvalid.emit()
@@ -32,7 +31,6 @@ class DictEditor(QWidget):
     def __init__(self):
         super(DictEditor, self).__init__()
         self.valid_keys = None
-        # self.dict = OrderedDict()
         self.keys = []
         self.values = []
         self.textEdits = []
@@ -79,37 +77,25 @@ class DictEditor(QWidget):
         texts = []
         for item in self.textEdits:
             texts.append(item.text())
-        '''
-        for key in self.dict.keys():
-            if key not in texts:
-                del self.dict[key]
-        '''
         for i in self.validators:
             i.texts = self.keys
 
 
-    # update dictionary and selectedItems
-    def updateLists(self, left, right, index):
+    # update lists and selectedItems
+    def updateLists(self, left, right):
 
         def applyUpdate():
             if self.valid_keys:
-                key = left.itemText(left.currentIndex())
                 selectedItems = self.updateCBoxes(left)
-                if key:
-                    print "apply update", key
-                    print "SI: ", self.selectedItems
-                    self.dict[key] = right.text()
+                self.keys = selectedItems
+                index = self.keys.index(left.itemText(left.currentIndex()))
+                self.values[index] = right.text()
 
-                    # remove unused values from dict
-                    for key in self.dict.keys():
-                        print "K:", key
-                        if key not in selectedItems:
-                            print "Deleting", key
-                            del self.dict[key]
+
             else:
                 key = left.text()
                 value = right.text()
-                # self.dict[key] = right.text()
+                index = self.textEdits.index(left)
                 self.keys[index] = key
                 self.values[index] = value
                 self.updateEditTexts()
@@ -121,8 +107,6 @@ class DictEditor(QWidget):
 
 
     # populate if dictionary is given
-    # def populateView(self):
-
     def insertRow(self, key="", value=""):
 
         self.keys.append(key)
@@ -149,7 +133,7 @@ class DictEditor(QWidget):
                 edit_left.setCurrentIndex(index)
 
             # assign signals
-            edit_left.currentIndexChanged.connect(self.updateLists(edit_left, edit_right, self.row_count))
+            edit_left.currentIndexChanged.connect(self.updateLists(edit_left, edit_right))
 
             self.cBoxes.append(edit_left)
 
@@ -162,57 +146,16 @@ class DictEditor(QWidget):
             validator.inputInvalid.connect(self.colorInvalid(edit_left))
 
             edit_left.setText(str(key))
-            edit_left.editingFinished.connect(self.updateLists(edit_left, edit_right, self.row_count))
+            edit_left.editingFinished.connect(self.updateLists(edit_left, edit_right))
             self.textEdits.append(edit_left)
 
-        edit_right.editingFinished.connect(self.updateLists(edit_left, edit_right, self.row_count))
+        edit_right.editingFinished.connect(self.updateLists(edit_left, edit_right))
         edit_left.setMinimumWidth(100)
         col.addWidget(r_button)
         col.addWidget(edit_left)
         col.addWidget(edit_right)
         self.rows.insertLayout(self.row_count, col)
         self.row_count += 1
-
-
-        '''
-        def insertRow(self, key="", value=""):
-
-        col = QHBoxLayout()
-        r_button = QPushButton()
-        r_button.setText("X")
-        r_button.clicked.connect(self.removeRow(col, self.row_count))
-
-        edit_right = QLineEdit()
-
-        if self.valid_keys:
-            edit_left = QComboBox()
-            for i in self.valid_keys:
-                edit_left.addItem(i)
-            self.cBoxes.append(edit_left)
-            edit_left.currentIndexChanged.connect(self.updateDict(edit_left, edit_right))
-
-        else:
-            edit_left = QLineEdit()
-            validator = InputChecker(self.row_count)
-            self.validators.append(validator)
-            edit_left.setValidator(validator)
-            validator.correctInput.connect(self.colorValid(edit_left))
-            validator.inputInvalid.connect(self.colorInvalid(edit_left))
-
-            edit_left.editingFinished.connect(self.updateDict(edit_left, edit_right))
-            self.textEdits.append(edit_left)
-
-        edit_left.setMinimumWidth(100)
-        edit_right.setMinimumWidth(100)
-        edit_right.editingFinished.connect(self.updateDict(edit_left, edit_right))
-
-        col.addWidget(r_button)
-        col.addWidget(edit_left)
-        col.addWidget(edit_right)
-
-        self.rows.insertLayout(self.row_count, col)
-        self.row_count += 1
-        '''
 
 
     def removeRow(self, section, index):
@@ -227,15 +170,13 @@ class DictEditor(QWidget):
 
                 if c == 1 and type(widget) != QComboBox:
                     self.validators.remove(self.validators[index])
-                    for i in range(len(self.validators)):
-                        print len(self.validators), i, index
 
+                    for i in range(len(self.validators)):
                         self.validators[i].setIndex(i)
 
+                    self.textEdits.remove(widget)
                     self.keys.remove(self.keys[index])
                     self.values.remove(self.values[index])
-                    print widget.text()
-
 
                 widget.deleteLater()
                 child = section.takeAt(0)
@@ -256,7 +197,7 @@ class DictEditor(QWidget):
 
     # set inital dictionary values
     def setDict(self, dictionary):
-        # self.populateView()
+
         for key, value in dictionary.items():
             self.insertRow(key, value)
         for i in self.validators:
