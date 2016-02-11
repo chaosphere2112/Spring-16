@@ -45,19 +45,18 @@ class AdjustValues(QWidget):
             self.slides[ind].setValue(value)
         self.clearing = False
 
-    def adjust_slides(self, slide):
-        def call_fb():
-            cur_index = self.slides.index(slide)
+    def adjust_slides(self, slide, cur_val):
+        print "adjusting"
+        cur_index = self.slides.index(slide)
 
-            for i, s in enumerate(self.slides):
+        for i, s in enumerate(self.slides):
 
-                if i < cur_index:
-                    if s.sliderPosition() > slide.sliderPosition():
-                        s.setValue(slide.sliderPosition())
-                else:
-                    if s.sliderPosition() < slide.sliderPosition():
-                        s.setValue(slide.sliderPosition())
-        return call_fb
+            if i < cur_index:
+                if s.sliderPosition() > slide.sliderPosition():
+                    s.setValue(slide.sliderPosition())
+            else:
+                if s.sliderPosition() < slide.sliderPosition():
+                    s.setValue(slide.sliderPosition())
 
     def send_values(self):
         positions = []
@@ -66,10 +65,9 @@ class AdjustValues(QWidget):
             positions.append(slide.sliderPosition())
         self.valuesChanged.emit(positions)
 
-    def change_label(self, lab, slide):
-        def adj_text():
-            lab.setText(str(slide.sliderPosition()))
-        return adj_text
+    def change_label(self, lab, slide, cur_val):
+        print cur_val
+        lab.setText(str(slide.sliderPosition()))
 
     def remove_level(self, row):
         child = row.takeAt(0)
@@ -105,9 +103,9 @@ class AdjustValues(QWidget):
         slide.setRange(self.min_val, self.max_val)
         slide.setValue(self.max_val)
         slide.setTickPosition(QSlider.TicksAbove)
-        slide.valueChanged.connect(self.change_label(lab, slide))
-        slide.sliderMoved.connect(self.adjust_slides(slide))
-        slide.sliderMoved.connect(self.send_values)
+        slide.valueChanged.connect(partial(self.change_label, lab, slide))
+        slide.valueChanged.connect(partial(self.adjust_slides, slide))
+        slide.valueChanged.connect(self.send_values)
 
         # insert layout
         self.wrap.insertLayout(len(self.slides), row)
