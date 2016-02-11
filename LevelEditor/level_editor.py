@@ -27,10 +27,10 @@ class LevelEditor(QtGui.QWidget):
         minval, maxval = vcs.minmax(variable)
         if levels is None:
             levels = vcs.utils.mkscale(*vcs.minmax(self.variable))
-        self.sliderWidget = SliderWidget.AdjustValues(levels, minval, maxval)
+        self.sliderWidget = SliderWidget.AdjustValues()
+        self.sliderWidget.update(minval, maxval, levels)
         self.sliderWidget.valuesChanged.connect(set_levels)
         self.levelsChanged.connect(update_level_label)
-
 
         layout.addWidget(self.level_label)
         layout.addWidget(self.sliderWidget)
