@@ -46,7 +46,6 @@ class AdjustValues(QWidget):
         self.clearing = False
 
     def adjust_slides(self, slide, cur_val):
-        print "adjusting"
         cur_index = self.slides.index(slide)
 
         for i, s in enumerate(self.slides):
@@ -66,7 +65,6 @@ class AdjustValues(QWidget):
         self.valuesChanged.emit(positions)
 
     def change_label(self, lab, slide, cur_val):
-        print cur_val
         lab.setText(str(slide.sliderPosition()))
 
     def remove_level(self, row):
