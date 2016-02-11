@@ -7,7 +7,9 @@ class AdjustValues(QWidget):
     valuesChanged = Signal(list)
 
     def __init__(self, parent=None):
+
         super(AdjustValues, self).__init__(parent=parent)
+
         self.min_val = 0
         self.max_val = 1
         self.slides = []
