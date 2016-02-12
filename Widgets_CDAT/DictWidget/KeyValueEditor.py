@@ -7,16 +7,13 @@ import pdb
 class KeyValueRow(QWidget):
     clickedRemove = Signal(QWidget)
 
-    # emits once focus is lost
     updatedKey = Signal(QWidget)
 
-    # emits every character change for color validation
-    keyChanged = Signal(QWidget)
     updatedValue = Signal(QWidget)
 
     def __init__(self, key="", value="", valid_keys=None, parent=None):
         super(KeyValueRow, self).__init__(parent=parent)
-        self.wrap = QHBoxLayout()
+        wrap = QHBoxLayout()
         self.valid_keys = valid_keys
 
         if valid_keys:
@@ -52,10 +49,10 @@ class KeyValueRow(QWidget):
         r_button.setText("X")
         r_button.clicked.connect(lambda: self.clickedRemove.emit(self))
 
-        self.wrap.addWidget(r_button)
-        self.wrap.addWidget(self.edit_key)
-        self.wrap.addWidget(self.edit_value)
-        self.setLayout(self.wrap)
+        wrap.addWidget(r_button)
+        wrap.addWidget(self.edit_key)
+        wrap.addWidget(self.edit_value)
+        self.setLayout(wrap)
 
 
     def setValid(self, is_valid):
@@ -80,7 +77,6 @@ class KeyValueRow(QWidget):
         return self.edit_value.text()
 
     def setKey(self, text):
-
         if self.valid_keys:
             index = self.edit_key.findText(str(text))
             if index != -1:
@@ -89,7 +85,6 @@ class KeyValueRow(QWidget):
             self.edit_key.setText(text)
 
     def setValue(self, text):
-
         self.edit_value.setText(text)
 
 
@@ -116,6 +111,7 @@ class InputChecker(QValidator):
 
         self.correctInput.emit()
         return QValidator.Acceptable
+
 
 class DictEditor(QWidget):
     dictEdited = Signal(dict)
@@ -149,9 +145,10 @@ class DictEditor(QWidget):
             # check if boxes match and set to blank if so
             if row != cur_row:
                 if check_text == cur_text:
+                    # accessing edit_key here
                     row.edit_key.setCurrentIndex(0)
 
-    # check if valid for emittion
+    # check if valid for emission
     def checkKeyValues(self):
         keys = []
         values = []
@@ -159,7 +156,7 @@ class DictEditor(QWidget):
             l_text = row.key()
             r_text = row.value()
             if l_text in keys or l_text == "" or r_text == "":
-                return ()
+                return (False, False)
 
             keys.append(l_text)
             values.append(r_text)
@@ -168,13 +165,10 @@ class DictEditor(QWidget):
 
 
     def emitSignal(self):
-        try:
-            keys, values = self.checkKeyValues()
 
+            keys, values = self.checkKeyValues()
             if keys and values:
                 self.dictEdited.emit(dict(zip(keys, values)))
-        except ValueError:
-            pass
 
 
 
@@ -186,15 +180,15 @@ class DictEditor(QWidget):
 
         new_row = KeyValueRow(key, value, self.valid_keys, self)
         new_row.updatedKey.connect(self.emitSignal)
-        # new_row.keyChanged.connect(self.updateEditTexts)
         new_row.updatedValue.connect(self.emitSignal)
         new_row.clickedRemove.connect(self.removeRow)
-        validator = InputChecker(self.rows.count(), self)
-        new_row.setKeyValidator(validator)
+
+        if not self.valid_keys:
+            validator = InputChecker(self.rows.count(), self)
+            new_row.setKeyValidator(validator)
 
         if self.valid_keys:
             new_row.updatedKey.connect(self.updateCBoxes)
-
 
         self.rows.addWidget(new_row)
         self.key_value_rows.append(new_row)
