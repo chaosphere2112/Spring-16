@@ -3,28 +3,119 @@ from PySide.QtGui import *
 from functools import partial
 import pdb
 
+
+class KeyValueRow(QWidget):
+    clickedRemove = Signal(QWidget)
+
+    # emits once focus is lost
+    updatedKey = Signal(QWidget)
+
+    # emits every character change for color validation
+    keyChanged = Signal(QWidget)
+    updatedValue = Signal(QWidget)
+
+    def __init__(self, key="", value="", valid_keys=None, parent=None):
+        super(KeyValueRow, self).__init__(parent=parent)
+        self.wrap = QHBoxLayout()
+        self.valid_keys = valid_keys
+
+        if valid_keys:
+            self.edit_key = QComboBox()
+
+        else:
+            self.edit_key = QLineEdit()
+
+        self.edit_value = QLineEdit()
+
+
+        if self.valid_keys:
+            for i in self.valid_keys:
+                self.edit_key.addItem(i)
+            index = self.edit_key.findText(str(key))
+            if index != -1:
+                self.edit_key.setCurrentIndex(index)
+
+            # assign signals
+            self.edit_key.currentIndexChanged.connect(lambda: self.updatedKey.emit(self))
+
+        else:
+            self.edit_key.setText(str(key))
+            self.edit_key.editingFinished.connect(lambda: self.updatedKey.emit(self))
+            self.edit_key.setMinimumWidth(100)
+
+        self.edit_value.setText(str(value))
+        self.edit_value.setMinimumWidth(100)
+        self.edit_value.editingFinished.connect(lambda: self.updatedValue.emit(self))
+
+
+        r_button = QPushButton()
+        r_button.setText("X")
+        r_button.clicked.connect(lambda: self.clickedRemove.emit(self))
+
+        self.wrap.addWidget(r_button)
+        self.wrap.addWidget(self.edit_key)
+        self.wrap.addWidget(self.edit_value)
+        self.setLayout(self.wrap)
+
+
+    def setValid(self, is_valid):
+        if is_valid:
+            self.edit_key.setStyleSheet("color: rgb(0, 0, 0);")
+        else:
+            self.edit_key.setStyleSheet("color: rgb(255, 0, 0);")
+
+    def setKeyValidator(self, validator):
+        self.edit_key.setValidator(validator)
+        validator.correctInput.connect(partial(self.setValid, True))
+        validator.inputInvalid.connect(partial(self.setValid, False))
+
+
+    def key(self):
+        if type(self.edit_key) == QLineEdit:
+            return self.edit_key.text()
+        else:
+            return self.edit_key.itemText(self.edit_key.currentIndex())
+
+    def value(self):
+        return self.edit_value.text()
+
+    def setKey(self, text):
+
+        if self.valid_keys:
+            index = self.edit_key.findText(str(text))
+            if index != -1:
+                self.edit_key.setCurrentIndex(index)
+        else:
+            self.edit_key.setText(text)
+
+    def setValue(self, text):
+
+        self.edit_value.setText(text)
+
+
 class InputChecker(QValidator):
 
     inputInvalid = Signal()
     correctInput = Signal()
 
-    def __init__(self, index):
+    def __init__(self, index, editor):
         super(InputChecker, self).__init__()
-        self.texts = []
+        self.editor = editor
         self.index = index
 
+
     def validate(self, input, pos):
-        if input in self.texts:
-            if self.texts.index(input) != self.index:
-                self.inputInvalid.emit()
-                return QValidator.Intermediate
+        keys = []
+        for index, row in enumerate(self.editor.key_value_rows):
+            if index != self.index:
+                keys.append(row.key())
+
+        if input in keys:
+            self.inputInvalid.emit()
+            return QValidator.Intermediate
 
         self.correctInput.emit()
         return QValidator.Acceptable
-
-    def setIndex(self, index):
-        self.index = index
-
 
 class DictEditor(QWidget):
     dictEdited = Signal(dict)
@@ -32,209 +123,102 @@ class DictEditor(QWidget):
     def __init__(self):
         super(DictEditor, self).__init__()
         self.valid_keys = None
-        self.keys = []
-        self.values = []
-        self.textEdits = []
-        self.valueEdits = []
-        self.validators = []
-        self.row_count = 0
+        self.key_value_rows = []
         self.rows = QVBoxLayout()
-        self.button = QVBoxLayout()
-        self.wrap = QVBoxLayout()
+        self.clearing = False
+
+        button = QVBoxLayout()
+        wrap = QVBoxLayout()
         add_button = QPushButton()
         add_button.setText("New Line")
         add_button.clicked.connect(self.insertRow)
-        self.clearing = False
-        self.button.addWidget(add_button)
-        self.setLayout(self.wrap)
-        self.wrap.addLayout(self.rows)
-        self.wrap.addLayout(self.button)
+        button.addWidget(add_button)
 
-    def colorInvalid(self, line_edit):
-        line_edit.setStyleSheet("color: rgb(255, 0, 0);")
-
-    def colorValid(self, line_edit):
-        line_edit.setStyleSheet("color: rgb(0, 0, 0);")
+        self.setLayout(wrap)
+        wrap.addLayout(self.rows)
+        wrap.addLayout(button)
 
 
     # Update Combo Boxes
-    def updateCBoxes(self, cur_box):
-        cur_text = cur_box.itemText(cur_box.currentIndex())
-        selectedItems = []
-        for box in self.cBoxes:
-            check_text = box.itemText(box.currentIndex())
+    def updateCBoxes(self, cur_row):
+        cur_text = cur_row.key()
 
-            selectedItems.append(check_text)
+        for row in self.key_value_rows:
+            check_text = row.key()
 
             # check if boxes match and set to blank if so
-            if box != cur_box:
+            if row != cur_row:
                 if check_text == cur_text:
-                    box.setCurrentIndex(0)
-
-        return selectedItems
-
-
-    # updates dict based on lineedit values
-    def updateEditTexts(self):
-        texts = []
-        for item in self.textEdits:
-            texts.append(item.text())
-        for i in self.validators:
-            i.texts = self.keys
-
-
-    # update lists and selectedItems
-    def updateLists(self, left, right, index=None):
-
-
-        if self.valid_keys:
-            selectedItems = self.updateCBoxes(left)
-            self.keys = selectedItems
-            index = self.keys.index(left.itemText(left.currentIndex()))
-            self.values[index] = right.text()
-
-
-        else:
-            key = left.text()
-            value = right.text()
-            index = self.textEdits.index(left)
-            self.keys[index] = key
-            self.values[index] = value
-            self.updateEditTexts()
-
-        if self.checkKeyValues() and not self.clearing:
-            self.dictEdited.emit(dict(zip(self.keys, self.values)))
+                    row.edit_key.setCurrentIndex(0)
 
     # check if valid for emittion
     def checkKeyValues(self):
-        text = []
-        if self.valid_keys:
-            for i in self.cBoxes:
-                t = i.itemText(i.currentIndex())
-                if t in text or t == "":
-                    return False
-                text.append(i.itemText(i.currentIndex()))
-        else:
-            for i in self.textEdits:
-                if i.text() in text or i.text() == "":
-                    return False
-                self.colorValid(i)
-                text.append(i.text())
+        keys = []
+        values = []
+        for row in self.key_value_rows:
+            l_text = row.key()
+            r_text = row.value()
+            if l_text in keys or l_text == "" or r_text == "":
+                return ()
 
-        for i in self.valueEdits:
-            if i.text() == "":
-                return False
-        return True
+            keys.append(l_text)
+            values.append(r_text)
 
+        return (keys, values)
+
+
+    def emitSignal(self):
+        try:
+            keys, values = self.checkKeyValues()
+
+            if keys and values:
+                self.dictEdited.emit(dict(zip(keys, values)))
+        except ValueError:
+            pass
 
 
 
     # populate if dictionary is given
     def insertRow(self, key="", value=""):
 
-        if self.valid_keys and self.row_count >= len(self.valid_keys)-1:
+        if self.valid_keys and self.rows.count() >= len(self.valid_keys)-1:
             return
 
-        self.keys.append(key)
-        self.values.append(value)
-
-        # for key, value in self.dict.items():
-        col = QHBoxLayout()
-        r_button = QPushButton()
-        r_button.setText("X")
-        r_button.clicked.connect(partial(self.removeRow, col, self.row_count))
-
-        # create right text edit
-        edit_right = QLineEdit()
-        edit_right.setText(str(value))
-        edit_right.setMinimumWidth(100)
-        self.valueEdits.append(edit_right)
+        new_row = KeyValueRow(key, value, self.valid_keys, self)
+        new_row.updatedKey.connect(self.emitSignal)
+        # new_row.keyChanged.connect(self.updateEditTexts)
+        new_row.updatedValue.connect(self.emitSignal)
+        new_row.clickedRemove.connect(self.removeRow)
+        validator = InputChecker(self.rows.count(), self)
+        new_row.setKeyValidator(validator)
 
         if self.valid_keys:
-            edit_left = QComboBox()
-        else:
-            edit_left = QLineEdit()
-
-        listUpdate = partial(self.updateLists, edit_left, edit_right)
-
-        # set text based off if valid_keys has values
-        if self.valid_keys:
-            for i in self.valid_keys:
-                edit_left.addItem(i)
-            index = edit_left.findText(str(key))
-            if index != -1:
-                edit_left.setCurrentIndex(index)
-
-            # assign signals
-            edit_left.currentIndexChanged.connect(listUpdate)
-
-            self.cBoxes.append(edit_left)
-
-        else:
-            validator = InputChecker(self.row_count)
-            self.validators.append(validator)
-            edit_left.setValidator(validator)
-            validator.correctInput.connect(partial(self.colorValid, edit_left))
-            validator.inputInvalid.connect(partial(self.colorInvalid, edit_left))
-            edit_left.setText(str(key))
-
-            edit_left.editingFinished.connect(listUpdate)
-            self.textEdits.append(edit_left)
+            new_row.updatedKey.connect(self.updateCBoxes)
 
 
-        edit_right.editingFinished.connect(listUpdate)
-        edit_left.setMinimumWidth(100)
-        col.addWidget(r_button)
-        col.addWidget(edit_left)
-        col.addWidget(edit_right)
-        self.rows.addLayout(col)
-        self.row_count += 1
+        self.rows.addWidget(new_row)
+        self.key_value_rows.append(new_row)
 
 
-    def removeRow(self, section, index):
-        child = section.takeAt(0)
-        c = 0
+    def removeRow(self, row_widget):
+        layout = row_widget.layout()
+        child = layout.takeAt(0)
+
         while child:
             widget = child.widget()
 
-            # remove the ComboBox if valid_keys
-            if type(widget) == QComboBox:
-                self.cBoxes.remove(widget)
-
-            # remove QLineEdit and its Validator. Reindex Validators
-            if c == 1 and type(widget) != QComboBox:
-                self.validators.remove(self.validators[index])
-
-                for i in range(len(self.validators)):
-                    self.validators[i].setIndex(i)
-                self.textEdits.remove(widget)
-
-            # Remove the value QLineEdit
-            if c == 2:
-                self.valueEdits.remove(widget)
-
-
             # delete Widget
-            child = section.takeAt(0)
+            child = layout.takeAt(0)
             widget.deleteLater()
-            c += 1
 
+        # Remove from list
+        self.key_value_rows.remove(row_widget)
 
-        # Update Keys and Values
-        self.keys.remove(self.keys[index])
-        self.values.remove(self.values[index])
+        layout.deleteLater()
+        row_widget.deleteLater()
 
-        for i in range(self.rows.count()):
-            row = self.rows.itemAt(i)
-            if row == section:
-                self.rows.takeAt(i)
-                break
-        section.deleteLater()
-
-        self.row_count -= 1
-
-        if self.checkKeyValues() and not self.clearing:
-            self.dictEdited.emit(dict(zip(self.keys, self.values)))
+        if not self.clearing:
+            self.emitSignal()
 
 
     # set valid keys to be selected
@@ -242,19 +226,20 @@ class DictEditor(QWidget):
     def setValidKeys(self, keys):
         self.valid_keys = keys
         self.valid_keys.insert(0, "")
-        self.cBoxes = []
 
     # set inital dictionary values
     def setDict(self, dictionary):
 
         self.clearing = True
 
-        if len(self.keys) > 0:
+        if self.rows.count() > 0:
 
             row = self.rows.takeAt(0)
+
             while row:
-                if type(row) == QHBoxLayout:
-                    self.removeRow(row, 0)
+                row_widget = row.widget()
+
+                self.removeRow(row_widget)
                 row = self.rows.takeAt(0)
 
         for key, value in dictionary.items():
@@ -262,13 +247,15 @@ class DictEditor(QWidget):
 
         self.clearing = False
 
-        for i in self.validators:
-            i.texts = self.keys
-
     # return valid keys
     def validKeys(self):
         return self.valid_keys
 
     # return dictionary
     def dict(self):
-        return dict(zip(self.keys, self.values))
+        keys = []
+        values = []
+        for row in self.key_value_rows:
+            keys.append(row.key())
+            values.append(row.value())
+        return dict(zip(keys, values))

@@ -22,8 +22,6 @@ def editors():
 
     d_e.dictEdited.connect(dictEmitted)
 
-    d_e.show()
-    d_e.raise_()
     initial = (d_e, d, keyList)
 
     # recreate dictEditor
@@ -43,8 +41,6 @@ def editors():
 
     d_e.dictEdited.connect(dictEmitted)
 
-    d_e.show()
-    d_e.raise_()
     new_d = OrderedDict()
     new_d['potato'] = 1
     new_d['carrot'] = 2
@@ -70,9 +66,9 @@ def test_insert(qtbot, editors):
         keyList = initial[2]
 
 
-        assert d_e.row_count == len(d.keys())
+        assert d_e.rows.count() == len(d.keys())
 
-        qtbot.keyPress(d_e.valueEdits[0], Qt.Key_Enter)
+        qtbot.keyPress(d_e.key_value_rows[0].edit_value, Qt.Key_Enter)
 
         d_e.insertRow()
         d_e.insertRow()
@@ -80,49 +76,27 @@ def test_insert(qtbot, editors):
         d_e.insertRow()
         d_e.insertRow()
 
-        assert d_e.row_count == 5
-        assert len(d_e.cBoxes) == 5
-
-        # populate empty combo boxes
-        texts = []
-        c = 0
-        for i in d_e.cBoxes:
-            t = i.itemText(i.currentIndex())
-            if t not in texts:
-                texts.append(t)
-
-            if t == "":
-                while keyList[c] in texts:
-                    c += 1
-                index = i.findText(keyList[c])
-                i.setCurrentIndex(index)
-                texts.append(i.itemText(i.currentIndex()))
-
-        for i in d_e.cBoxes:
-            print d_e.cBoxes.index(i)
-        assert i.itemText(i.currentIndex()) != ""
+        assert d_e.rows.count() == 5
+        assert len(d_e.key_value_rows) == 5
 
 
 def test_duplicates(editors):
     for index, initial in enumerate(editors):
 
         d_e = initial[0]
+        key_list = initial[2]
 
         # test duplicate items
 
         if index == 0:
-            d_e.cBoxes[0].setCurrentIndex(5)
+            d_e.key_value_rows[0].setKey(key_list[5])
         else:
-            d_e.cBoxes[1].setCurrentIndex(1)
-
-        print d_e.keys
+            d_e.key_value_rows[1].setKey(key_list[1])
 
         if index == 0:
-            assert d_e.cBoxes[0].itemText(d_e.cBoxes[0].currentIndex()) == "quesadilla"
-            assert d_e.cBoxes[1].itemText(d_e.cBoxes[1].currentIndex()) == "" and d_e.cBoxes[1].currentIndex() == 0
+            assert d_e.key_value_rows[0].key() == "quesadilla"
         else:
-            assert d_e.cBoxes[1].itemText(d_e.cBoxes[1].currentIndex()) == "potato"
-            assert d_e.cBoxes[0].itemText(d_e.cBoxes[0].currentIndex()) == "" and d_e.cBoxes[0].currentIndex() == 0
+            assert d_e.key_value_rows[1].key() == "potato"
 
 
 def test_remove(qtbot, editors):
@@ -131,17 +105,21 @@ def test_remove(qtbot, editors):
         d_e = initial[0]
 
         # test remove
-        d_e.removeRow(d_e.rows.itemAt(1), 1)
+        row = d_e.rows.takeAt(1)
+        d_e.removeRow(row.widget())
 
-        assert d_e.row_count == 1
-        assert len(d_e.cBoxes) == 1
+        assert d_e.rows.count() == 1
+        assert len(d_e.key_value_rows) == 1
 
-        # d_e.cBoxes[1].setCurrentIndex(2)
-        assert "" not in d_e.keys
+        cur_keys = []
+        for row in d_e.key_value_rows:
+            cur_keys.append(row.key())
 
-        for index, value in enumerate(d_e.valueEdits):
-            value.setText("value" + str(index))
-            qtbot.keyPress(value, Qt.Key_Enter)
+        assert "" not in cur_keys
+
+        for index, row in enumerate(d_e.key_value_rows):
+            row.setValue("value" + str(index))
+            qtbot.keyPress(row.edit_value, Qt.Key_Enter)
 
 
 def test_reinitialize_blank(editors):
@@ -151,5 +129,5 @@ def test_reinitialize_blank(editors):
         # test new Dict
         d_e.setDict({})
 
-        assert d_e.row_count == 0
-        assert len(d_e.cBoxes) == 0
+        assert d_e.rows.count() == 0
+        assert len(d_e.key_value_rows) == 0
