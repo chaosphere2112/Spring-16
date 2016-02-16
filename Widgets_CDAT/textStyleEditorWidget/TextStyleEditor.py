@@ -202,6 +202,7 @@ class TextStyleEditor(QtGui.QWidget):
     def updateFont(self, font):
 
         self.textObject.font = str(font)
+        print self.textObject.font
 
         self.preview.setTextObject(self.textObject)
 
