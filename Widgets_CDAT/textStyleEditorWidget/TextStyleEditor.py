@@ -212,4 +212,3 @@ class TextStyleEditor(QtGui.QWidget):
 
         self.savePressed.emit(name)
         self.close()
-

@@ -109,26 +109,3 @@ def test_saveas(qtbot, editors):
 
         editor.win.setTextValue("test.txt")
         qtbot.keyPress(editor.win, QtCore.Qt.Key_Enter)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
