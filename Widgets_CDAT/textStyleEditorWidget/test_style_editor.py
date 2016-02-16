@@ -8,13 +8,11 @@ import TextStyleEditor
 def editors():
     edit1 = TextStyleEditor.TextStyleEditor()
     t = vcs.createtext()
-    t.string = "Hello World!"
     t.name = "header"
     edit1.setTextObject(t)
 
     edit2 = TextStyleEditor.TextStyleEditor()
     t = vcs.createtext()
-    t.string = "Hello World!"
     t.name = "header"
     t.valign = 0
     t.halign = 1
@@ -22,7 +20,6 @@ def editors():
 
     edit3 = TextStyleEditor.TextStyleEditor()
     t = vcs.createtext()
-    t.string = "Hello World!"
     t.name = "header"
     t.valign = 4
     t.halign = 2
@@ -45,23 +42,23 @@ def test_save(qtbot, editors):
 def test_alignment(editors):
     for editor in editors:
         # test valign
-        editor.updateButton(editor.VAGroup.buttons()[0])
+        editor.updateButton(editor.va_group.buttons()[0])
         assert editor.textObject.valign == 0
 
-        editor.updateButton(editor.VAGroup.buttons()[2])
+        editor.updateButton(editor.va_group.buttons()[2])
         assert editor.textObject.valign == 4
 
-        editor.updateButton(editor.VAGroup.buttons()[1])
+        editor.updateButton(editor.va_group.buttons()[1])
         assert editor.textObject.valign == 2
 
         # test halign
-        editor.updateButton(editor.HAGroup.buttons()[2])
+        editor.updateButton(editor.ha_group.buttons()[2])
         assert editor.textObject.halign == 2
 
-        editor.updateButton(editor.HAGroup.buttons()[1])
+        editor.updateButton(editor.ha_group.buttons()[1])
         assert editor.textObject.halign == 1
 
-        editor.updateButton(editor.HAGroup.buttons()[0])
+        editor.updateButton(editor.ha_group.buttons()[0])
         assert editor.textObject.halign == 0
 
 

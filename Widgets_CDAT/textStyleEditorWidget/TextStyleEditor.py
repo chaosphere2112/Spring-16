@@ -14,64 +14,45 @@ class TextStyleEditor(QtGui.QWidget):
         wrap = QtGui.QVBoxLayout()
 
         # Set up vertical align
-        self.VAGroup = QtGui.QButtonGroup()
+        self.va_group = QtGui.QButtonGroup()
+        va_layout = QtGui.QHBoxLayout()
 
-        T_button = QtGui.QPushButton()
-        T_button.setText("Top")
-        T_button.setCheckable(True)
-        M_button = QtGui.QPushButton()
-        M_button.setText("Mid")
-        M_button.setCheckable(True)
-        B_button = QtGui.QPushButton()
-        B_button.setText("Bot")
-        B_button.setCheckable(True)
+        for alignment in ["Top", "Mid", "Bot"]:
 
-        VALayout = QtGui.QHBoxLayout()
-        VALayout.addWidget(T_button)
-        VALayout.addWidget(M_button)
-        VALayout.addWidget(B_button)
+            button = QtGui.QPushButton()
+            button.setText(alignment)
+            button.setCheckable(True)
+            va_layout.addWidget(button)
+            self.va_group.addButton(button)
 
-        self.VAGroup.addButton(T_button)
-        self.VAGroup.addButton(M_button)
-        self.VAGroup.addButton(B_button)
-        self.VAGroup.buttonClicked.connect(self.updateButton)
+        self.va_group.buttonClicked.connect(self.updateButton)
 
-        VABox = QtGui.QGroupBox()
-        VABox.setLayout(VALayout)
-        VABox.setTitle("Vertical Align")
+        va_box = QtGui.QGroupBox()
+        va_box.setLayout(va_layout)
+        va_box.setTitle("Vertical Align")
 
         # Set up horizontal group
-        self.HAGroup = QtGui.QButtonGroup()
+        self.ha_group = QtGui.QButtonGroup()
+        ha_layout = QtGui.QHBoxLayout()
 
-        L_button = QtGui.QPushButton()
-        L_button.setText("Left")
-        L_button.setCheckable(True)
-        C_button = QtGui.QPushButton()
-        C_button.setText("Center")
-        C_button.setCheckable(True)
-        R_button = QtGui.QPushButton()
-        R_button.setText("Right")
-        R_button.setCheckable(True)
+        for alignment in ["Left", "Center", "Right"]:
+            button = QtGui.QPushButton()
+            button.setText(alignment)
+            button.setCheckable(True)
+            ha_layout.addWidget(button)
+            self.ha_group.addButton(button)
 
-        HALayout = QtGui.QHBoxLayout()
-        HALayout.addWidget(L_button)
-        HALayout.addWidget(C_button)
-        HALayout.addWidget(R_button)
+        self.ha_group.buttonClicked.connect(self.updateButton)
 
-        self.HAGroup.addButton(L_button)
-        self.HAGroup.addButton(C_button)
-        self.HAGroup.addButton(R_button)
-        self.HAGroup.buttonClicked.connect(self.updateButton)
-
-        HABox = QtGui.QGroupBox()
-        HABox.setLayout(HALayout)
-        HABox.setTitle("Horizontal Align")
+        ha_box = QtGui.QGroupBox()
+        ha_box.setLayout(ha_layout)
+        ha_box.setTitle("Horizontal Align")
 
         # First row
         align_angle_row = QtGui.QHBoxLayout()
-        align_angle_row.addWidget(VABox)
-        align_angle_row.addWidget(HABox)
-        align_angle_row.insertStretch(2,1)
+        align_angle_row.addWidget(va_box)
+        align_angle_row.addWidget(ha_box)
+        align_angle_row.insertStretch(2, 1)
 
         # Preview setup
         self.preview = text_style_preview.TextStylePreviewWidget()
@@ -141,14 +122,14 @@ class TextStyleEditor(QtGui.QWidget):
         self.setLayout(wrap)
 
 
-    def setTextObject(self, textObject):
-        self.textObject = textObject
+    def setTextObject(self, text_object):
+        self.textObject = text_object
         self.preview.setTextObject(self.textObject)
-        self.setWindowTitle("Edit Style \"" + self.textObject.name + "\"")
+        self.setWindowTitle('Edit Style "%s"' % self.textObject.name)
 
         # set initial values
         cur_valign = self.textObject.valign
-        for button in self.VAGroup.buttons():
+        for button in self.va_group.buttons():
             if cur_valign == 0 and button.text() == "Top":
                 button.setChecked(True)
             elif cur_valign == 2 and button.text() == "Mid":
@@ -157,7 +138,7 @@ class TextStyleEditor(QtGui.QWidget):
                 button.setChecked(True)
 
         cur_halign = self.textObject.halign
-        for button in self.HAGroup.buttons():
+        for button in self.ha_group.buttons():
             if cur_halign == 0 and button.text() == "Left":
                 button.setChecked(True)
             elif cur_halign == 1 and button.text() == "Center":
@@ -189,29 +170,26 @@ class TextStyleEditor(QtGui.QWidget):
         elif button.text() == "Right":
             self.textObject.halign = "right"
 
-        self.preview.setTextObject(self.textObject)
-
+        self.preview.update()
 
     def updateAngle(self, angle):
 
-        self.textObject.angle = angle%360
+        self.textObject.angle = angle % 360
 
-        self.preview.setTextObject(self.textObject)
+        self.preview.update()
 
 
     def updateFont(self, font):
 
         self.textObject.font = str(font)
-        print self.textObject.font
 
-        self.preview.setTextObject(self.textObject)
-
+        self.preview.update()
 
     def updateSize(self, size):
 
         self.textObject.height = size
 
-        self.preview.setTextObject(self.textObject)
+        self.preview.update()
 
     def saveAs(self):
 
@@ -235,20 +213,3 @@ class TextStyleEditor(QtGui.QWidget):
         self.savePressed.emit(name)
         self.close()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
