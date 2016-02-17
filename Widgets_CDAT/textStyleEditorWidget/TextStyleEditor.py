@@ -67,7 +67,7 @@ class TextStyleEditor(QtGui.QWidget):
 
         # angle dial setup
         self.angle_slider = QtGui.QDial()
-        self.angle_slider.setRange(90, 450)
+        self.angle_slider.setRange(90, 450)  # set rotate values so dial orientation matches initial text
         self.angle_slider.setWrapping(True)
         self.angle_slider.setNotchesVisible(True)
         self.angle_slider.valueChanged.connect(self.updateAngle)
@@ -174,7 +174,7 @@ class TextStyleEditor(QtGui.QWidget):
 
     def updateAngle(self, angle):
 
-        self.textObject.angle = angle % 360
+        self.textObject.angle = angle % 360  # angle cannot be higher than 360
 
         self.preview.update()
 
