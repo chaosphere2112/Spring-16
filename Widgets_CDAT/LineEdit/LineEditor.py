@@ -2,11 +2,12 @@ from PySide import QtGui, QtCore
 import BaseWindow
 import LinePreview
 
+
 class LineEditorWidget(BaseWindow.BaseWindowWidget):
 
     def __init__(self):
         super(LineEditorWidget, self).__init__()
-        self.preview = LinePreview.LinePreviewWidget()
+        self.setPreview(LinePreview.LinePreviewWidget())
 
         # create labels
         type_label = QtGui.QLabel("Type:")

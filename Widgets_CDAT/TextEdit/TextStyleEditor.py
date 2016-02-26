@@ -1,24 +1,19 @@
 import vcs
 import text_style_preview
 from PySide import QtCore, QtGui
+import BaseWindow
 
 
-class TextStyleEditor(QtGui.QWidget):
-
-    savePressed = QtCore.Signal(str)
-    
+class TextStyleEditorWidget(BaseWindow.BaseWindowWidget):
     def __init__(self):
-        super(TextStyleEditor, self).__init__()
-        self.textObject = None
-
-        wrap = QtGui.QVBoxLayout()
+        super(TextStyleEditorWidget, self).__init__()
+        self.setPreview(text_style_preview.TextStylePreviewWidget())
 
         # Set up vertical align
         self.va_group = QtGui.QButtonGroup()
         va_layout = QtGui.QHBoxLayout()
 
         for alignment in ["Top", "Mid", "Bot"]:
-
             button = QtGui.QPushButton()
             button.setText(alignment)
             button.setCheckable(True)
@@ -54,9 +49,6 @@ class TextStyleEditor(QtGui.QWidget):
         align_angle_row.addWidget(ha_box)
         align_angle_row.insertStretch(2, 1)
 
-        # Preview setup
-        self.preview = text_style_preview.TextStylePreviewWidget()
-
         # Create labels
         angle_label = QtGui.QLabel()
         angle_label.setText("Angle:")
@@ -86,7 +78,6 @@ class TextStyleEditor(QtGui.QWidget):
         self.size_box.setRange(1, 128)
         self.size_box.valueChanged.connect(self.updateSize)
 
-
         font_size_row = QtGui.QHBoxLayout()
         font_size_row.addWidget(font_label)
         font_size_row.addWidget(self.font_box)
@@ -94,33 +85,9 @@ class TextStyleEditor(QtGui.QWidget):
         font_size_row.addWidget(self.size_box)
         font_size_row.insertStretch(2, 3)
 
-        # Save and Cancel Buttons
-
-        cancel_button = QtGui.QPushButton()
-        cancel_button.setText("Cancel")
-        cancel_button.clicked.connect(lambda: self.close())
-
-        saveas_button = QtGui.QPushButton()
-        saveas_button.setText("Save As")
-        saveas_button.clicked.connect(self.saveAs)
-
-        save_button = QtGui.QPushButton()
-        save_button.setText("Save")
-        save_button.clicked.connect(self.save)
-
-        save_cancel_row = QtGui.QHBoxLayout()
-        save_cancel_row.addWidget(cancel_button)
-        save_cancel_row.addWidget(saveas_button)
-        save_cancel_row.addWidget(save_button)
-        save_cancel_row.insertStretch(1, 1)
-
         # Set up wrap
-        wrap.addWidget(self.preview)
-        wrap.addLayout(align_angle_row)
-        wrap.addLayout(font_size_row)
-        wrap.addLayout(save_cancel_row)
-        self.setLayout(wrap)
-
+        self.vertical_layout.insertLayout(1, align_angle_row)
+        self.vertical_layout.insertLayout(2, font_size_row)
 
     def setTextObject(self, text_object):
         self.textObject = text_object
@@ -150,7 +117,6 @@ class TextStyleEditor(QtGui.QWidget):
 
         self.size_box.setValue(self.textObject.height)
 
-
     def updateButton(self, button):
         if button.text() == "Top":
             self.textObject.valign = "top"
@@ -178,7 +144,6 @@ class TextStyleEditor(QtGui.QWidget):
 
         self.preview.update()
 
-
     def updateFont(self, font):
 
         self.textObject.font = str(font)
@@ -200,7 +165,6 @@ class TextStyleEditor(QtGui.QWidget):
 
         self.win.show()
         self.win.raise_()
-
 
     def save(self):
 
