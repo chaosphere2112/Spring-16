@@ -1,24 +1,24 @@
 import pytest
 import vcs
 from PySide import QtCore, QtGui
-import TextStyleEditor
+from cdat.TextEdit import TextStyleEditor
 
 
 @pytest.fixture
 def editors():
-    edit1 = TextStyleEditor.TextStyleEditor()
+    edit1 = TextStyleEditor.TextStyleEditorWidget()
     t = vcs.createtext()
     t.name = "header"
     edit1.setTextObject(t)
 
-    edit2 = TextStyleEditor.TextStyleEditor()
+    edit2 = TextStyleEditor.TextStyleEditorWidget()
     t = vcs.createtext()
     t.name = "header"
     t.valign = 0
     t.halign = 1
     edit2.setTextObject(t)
 
-    edit3 = TextStyleEditor.TextStyleEditor()
+    edit3 = TextStyleEditor.TextStyleEditorWidget()
     t = vcs.createtext()
     t.name = "header"
     t.valign = 4
