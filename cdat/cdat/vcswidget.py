@@ -92,6 +92,7 @@ class QVCSWidget(QtGui.QFrame):
         deallocating. Overriding PyQt deleteLater to free up
         resources
         """
-        self.canvas.onClosing((0, 0))
+        if self.canvas:
+            self.canvas.onClosing((0, 0))
         self.canvas = None
         super(QVCSWidget, self).deleteLater()

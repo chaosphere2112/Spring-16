@@ -1,4 +1,4 @@
-import vcswidget
+from cdat import vcswidget
 import vcs
 
 
@@ -18,25 +18,3 @@ class TextStylePreviewWidget(vcswidget.QVCSWidget):
 
     def update(self):
         self.setTextObject(self.textobj)
-
-
-if __name__ == "__main__":
-    from PySide import QtGui
-    app = QtGui.QApplication([])
-    widget = QtGui.QWidget()
-    layout = QtGui.QVBoxLayout()
-    widget.setLayout(layout)
-    preview = TextStylePreviewWidget()
-    layout.addWidget(preview)
-
-    line_edit = QtGui.QLineEdit()
-    
-    def make_tc(name):
-        tc = vcs.createtext(name)
-        preview.setTextObject(tc)
-
-    line_edit.textEdited.connect(make_tc)
-    layout.addWidget(line_edit)
-    widget.show()
-    widget.raise_()
-    app.exec_()
