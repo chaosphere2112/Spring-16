@@ -1,7 +1,7 @@
 import pytest
 import vcs, cdms2
 from PySide import QtGui, QtCore
-import TextStylePreview
+from cdat.TextEdit import TextStylePreview
 
 
 def test_preview():

@@ -1,7 +1,7 @@
 from PySide.QtCore import *
 from PySide.QtGui import *
 from collections import OrderedDict
-from KeyValueEditor import DictEditor
+from cdat.DictEdit.KeyValueEditor import DictEditor
 import pytest
 
 

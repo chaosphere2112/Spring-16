@@ -1,5 +1,5 @@
 from PySide import QtGui, QtCore
-import BaseWindow
+from cdat.Base import BaseWindow
 import LinePreview
 
 
@@ -23,12 +23,12 @@ class LineEditorWidget(BaseWindow.BaseWindowWidget):
 
         # create color spin box
         color_box = QtGui.QSpinBox()
-        color_box.setRange(0,255)
+        color_box.setRange(0, 255)
         color_box.valueChanged.connect(self.updateColor)
 
         # create color spin box
         width_box = QtGui.QSpinBox()
-        width_box.setRange(1,300)
+        width_box.setRange(1, 300)
         width_box.valueChanged.connect(self.updateWidth)
 
         row.addWidget(type_label)

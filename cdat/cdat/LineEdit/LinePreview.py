@@ -1,4 +1,4 @@
-import vcswidget
+from cdat import vcswidget
 import vcs
 
 

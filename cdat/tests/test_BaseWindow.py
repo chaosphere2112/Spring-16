@@ -1,7 +1,6 @@
 import pytest
-import vcs, cdms2
-from PySide import QtGui, QtCore
-import BaseWindow, LinePreview
+from cdat.Base import BaseWindow
+from cdat.LineEdit import LinePreview
 
 
 class DummyClass(object):
@@ -39,3 +38,9 @@ def test_save_as(qtbot, window):
     base.saveAs()
     base.win.setTextValue("pizza")
     base.win.accepted.emit()
+
+
+def test_duplicate_preview(window):
+    new_prev = LinePreview.LinePreviewWidget()
+    window.setPreview(new_prev)
+    assert window.vertical_layout.count() == 2

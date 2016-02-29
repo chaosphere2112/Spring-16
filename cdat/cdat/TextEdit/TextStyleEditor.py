@@ -1,7 +1,7 @@
 import vcs
-import text_style_preview
+import TextStylePreview as text_style_preview
 from PySide import QtCore, QtGui
-import BaseWindow
+from cdat.Base import BaseWindow
 
 
 class TextStyleEditorWidget(BaseWindow.BaseWindowWidget):

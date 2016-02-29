@@ -1,4 +1,3 @@
-import vcs
 from PySide import QtCore, QtGui
 
 
@@ -38,6 +37,11 @@ class BaseWindowWidget(QtGui.QWidget):
         self.setLayout(self.vertical_layout)
 
     def setPreview(self, preview):
+        if self.preview:
+            self.vertical_layout.removeWidget(self.preview)
+            print "P: ", self.preview
+            self.preview.deleteLater()
+
         self.preview = preview
         self.vertical_layout.insertWidget(0, self.preview)
 
@@ -56,6 +60,7 @@ class BaseWindowWidget(QtGui.QWidget):
         try:
             name = self.win.textValue()
             self.win.close()
+            self.win.deleteLater()
         except:
             name = self.object.name
 

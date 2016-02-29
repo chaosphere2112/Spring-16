@@ -1,7 +1,7 @@
 import pytest
 import vcs
 from PySide import QtCore, QtGui
-import TextStyleEditor
+from cdat.TextEdit import TextStyleEditor
 
 
 @pytest.fixture

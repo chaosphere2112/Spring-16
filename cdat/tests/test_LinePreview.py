@@ -1,7 +1,7 @@
 import pytest
 import vcs, cdms2
 from PySide import QtGui, QtCore
-import LinePreview
+from cdat.LineEdit import LinePreview
 
 
 def test_preview():
