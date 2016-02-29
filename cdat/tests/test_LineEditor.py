@@ -1,6 +1,5 @@
 import pytest
 import vcs, cdms2
-from PySide import QtGui, QtCore
 from cdat.LineEdit import LineEditor
 
 @pytest.fixture
