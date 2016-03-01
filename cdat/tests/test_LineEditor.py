@@ -1,6 +1,5 @@
 import pytest
 import vcs, cdms2
-from PySide import QtGui, QtCore
 from cdat.LineEdit import LineEditor
 
 @pytest.fixture
@@ -21,4 +20,3 @@ def test_color(qtbot, editor):
 def test_width(qtbot, editor):
     editor.updateWidth(250)
     assert editor.object.width == [250]
-
