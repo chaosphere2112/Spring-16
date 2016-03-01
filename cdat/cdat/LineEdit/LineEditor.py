@@ -1,6 +1,6 @@
 from PySide import QtGui, QtCore
 from cdat.Base import BaseWindow
-import LinePreview
+from cdat.LineEdit import LinePreview
 
 
 class LineEditorWidget(BaseWindow.BaseWindowWidget):
