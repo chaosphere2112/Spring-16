@@ -1,7 +1,6 @@
 from PySide.QtCore import *
 from PySide.QtGui import *
 from functools import partial
-import pdb
 
 
 class KeyValueRow(QWidget):
@@ -113,11 +112,11 @@ class InputChecker(QValidator):
         return QValidator.Acceptable
 
 
-class DictEditor(QWidget):
+class DictEditorWidget(QWidget):
     dictEdited = Signal(dict)
 
     def __init__(self):
-        super(DictEditor, self).__init__()
+        super(DictEditorWidget, self).__init__()
         self.valid_keys = None
         self.key_value_rows = []
         self.rows = QVBoxLayout()

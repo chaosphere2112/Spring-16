@@ -1,13 +1,13 @@
 from PySide.QtCore import *
 from PySide.QtGui import *
 from collections import OrderedDict
-from cdat.DictEdit.KeyValueEditor import DictEditor
+from cdat.DictEdit import DictEditor
 import pytest
 
 
 @pytest.fixture
 def editors():
-    d_e = DictEditor()
+    d_e = DictEditor.DictEditorWidget()
     d_e.setMinimumSize(400, 100)
     d = OrderedDict()
 
@@ -25,7 +25,7 @@ def editors():
     initial = (d_e, d, keyList)
 
     # recreate dictEditor
-    d_e = DictEditor()
+    d_e = DictEditor.DictEditorWidget()
     d_e.setMinimumSize(400, 100)
     d = OrderedDict()
 

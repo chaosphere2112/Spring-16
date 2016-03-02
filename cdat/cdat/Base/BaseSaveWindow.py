@@ -1,11 +1,11 @@
 from PySide import QtCore, QtGui
 
 
-class BaseWindowWidget(QtGui.QWidget):
+class BaseSaveWindowWidget(QtGui.QWidget):
     savePressed = QtCore.Signal(str)
 
     def __init__(self):
-        super(BaseWindowWidget, self).__init__()
+        super(BaseSaveWindowWidget, self).__init__()
 
         self.object = None
         self.preview = None

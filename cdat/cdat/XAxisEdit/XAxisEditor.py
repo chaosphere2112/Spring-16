@@ -1,6 +1,6 @@
 from PySide import QtGui, QtCore
-from cdat.Base import BaseSaveWindow
-from cdat.LineEdit import LinePreview
+from cdat.Base import BaseOkWindow
+from cdat. import LinePreview
 
 
 class LineEditorWidget(BaseSaveWindow.BaseSaveWindowWidget):

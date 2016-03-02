@@ -1,10 +1,10 @@
 import cdms2, vcs
 from PySide import QtGui, QtCore
-from cdat.Base import BaseWindow
+from cdat.Base import BaseSaveWindow
 from cdat.FillEdit import FillPreview
 
 
-class FillAreaEditorWidget(BaseWindow.BaseWindowWidget):
+class FillAreaEditorWidget(BaseSaveWindow.BaseSaveWindowWidget):
 
     def __init__(self):
         super(FillAreaEditorWidget, self).__init__()
