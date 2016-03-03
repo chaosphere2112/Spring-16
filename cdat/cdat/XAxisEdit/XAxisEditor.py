@@ -80,9 +80,9 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         self.vertical_layout.insertWidget(2, self.preset_widget)
         self.vertical_layout.insertLayout(3, mini_ticks_row)
 
-    def setLineObject(self, line_obj):
-        self.object = line_obj
-        self.preview.setLineObject(self.object)
+    def setAxisObject(self, axis_obj):
+        self.object = axis_obj
+        self.preview.setAxisObject(self.object)
 
     def updateTickmark(self, button):
         while self.vertical_layout.count() > 4:
@@ -95,6 +95,9 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         elif button.text() == "Even":
             self.vertical_layout.insertWidget(2, self.ticks_widget)
             self.ticks_widget.setVisible(True)
+        elif button.text() == "Manual":
+            self.vertical_layout.insertWidget(2, self.dict_widget)
+            self.dict_widget.setVisible(True)
 
     def updatePreset(self, preset):
         pass
