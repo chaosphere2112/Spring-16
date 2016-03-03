@@ -1,12 +1,11 @@
 import vcs
 
 class VCSAxis(object):
-    def __init__(self, gm, tmpl, axis, left=0, right=0):
+    def __init__(self, gm, tmpl, axis, var):
         self.gm = gm
         self.tmpl = tmpl
         self._axis = axis
-        self.left = left
-        self.right = right
+        self.var = var
 
     @property
     def ticks(self):
@@ -31,6 +30,10 @@ class VCSAxis(object):
             self.gm.yticlabels1 = val
         if self._axis == "y2":
             self.gm.yticlabels2 = val
+        if isinstance(val, str):
+            # Check if there exists a listname_miniticks and assign that to miniticks
+            if "%s_miniticks" % val in vcs.elements["list"]:
+                self.miniticks = vcs.elements['list']["%s_miniticks" % val]
 
     @property
     def miniticks(self):
@@ -143,4 +146,9 @@ class VCSAxis(object):
             miniticks.extend((prev_val + step * i for i in range(count + 1)))
             prev_val = val
         self.miniticks = {t: "" for t in miniticks}
+
+    def save(self, name):
+        vcs.elements["list"][name] = self.ticks
+        vcs.elements["list"][name + "_miniticks"] = self.miniticks
+        self.saveinitialfile()
 
