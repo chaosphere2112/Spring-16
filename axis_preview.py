@@ -17,23 +17,28 @@ class AxisPreview(vcswidget.QVCSWidget):
 		axis_number = self.axis._axis[1]
 		axis_ticks = getattr(template, "%stic%s" % (axis_orientation, axis_number))
 		axis_min_ticks = getattr(template, "%smintic%s" % (axis_orientation, axis_number))
+		axis_labels = getattr(template, "%slabel%s" % (axis_orientation, axis_number))
 
 		# Make the ticks visible
 		axis_ticks.priority = 1
 		axis_min_ticks.priority = 1 if self.axis.show_miniticks else 0
+		axis_labels.priority = 1
+
 
 		moving_attr = "x" if axis_orientation == "y" else "y"
 		attr_1 = moving_attr + "1"
 		attr_2 = moving_attr + "2"
 
-		ticklen = getattr(axis_ticks, attr_1) - getattr(axis_ticks, attr_2)
-		minticklen = getattr(axis_min_ticks, attr_1) - getattr(axis_min_ticks, attr_2)
+		ticklen = getattr(axis_ticks, attr_2) - getattr(axis_ticks, attr_1)
+		label_distance = getattr(axis_labels, moving_attr) - getattr(axis_ticks, attr_1)
+		minticklen = getattr(axis_min_ticks, attr_2) - getattr(axis_min_ticks, attr_1)
 		
 		# Move the ticks to the middle
 		setattr(axis_ticks, attr_1, .5)
 		setattr(axis_ticks, attr_2, .5 + ticklen)
 		setattr(axis_min_ticks, attr_1, .5)
 		setattr(axis_min_ticks, attr_2, .5 + minticklen)
+		setattr(axis_labels, moving_attr, .5 + label_distance)
 
 		# Get the worldcoordinates
 		try:
@@ -58,7 +63,7 @@ if __name__ == "__main__":
 	box = vcs.createboxfill()
 	tmpl = vcs.createtemplate()
 	var = cdms2.open(vcs.sample_data + "/clt.nc")("clt")
-	axis = vcsaxis.VCSAxis(box, tmpl, "y2", var)
+	axis = vcsaxis.VCSAxis(box, tmpl, "x1", var)
 	w = QtGui.QWidget()
 	l = QtGui.QVBoxLayout()
 	w.setLayout(l)
