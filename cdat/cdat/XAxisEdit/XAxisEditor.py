@@ -63,6 +63,7 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
 
         # create show mini ticks check box
         show_mini_check_box = QtGui.QCheckBox()
+        show_mini_check_box.stateChanged.connect(self.updateShowMiniTicks)
 
 
         # create mini tick spin box
@@ -102,5 +103,15 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         self.object.ticks = preset
         self.preview.update()
 
+    def updateShowMiniTicks(self, state):
+        if state == QtCore.Qt.Checked:
+            self.object.show_miniticks = True
+        elif state == QtCore.Qt.Unchecked:
+            self.object.show_miniticks = False
+        self.preview.update()
+
+
     def updateMiniTicks(self, mini_count):
-        pass
+        self.object.minitick_count = int(mini_count)
+        self.preview.update()
+
