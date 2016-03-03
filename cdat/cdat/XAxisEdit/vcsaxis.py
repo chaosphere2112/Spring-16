@@ -8,6 +8,20 @@ class VCSAxis(object):
         self.var = var
 
     @property
+    def axis(self):
+        if self._axis[0] == "x":
+            try:
+                return self.var.getAxis(-1)
+            except:
+                return range(len(self.var))
+        elif self._axis[0] == "y":
+            try:
+                return self.var.getAxis(-2)
+            except:
+                return self.var
+        return None
+
+    @property
     def ticks(self):
         """Use this attribute for the dict editor."""
         if self._axis == "x1":
@@ -73,7 +87,8 @@ class VCSAxis(object):
         if value == "auto" and self.ticks != "*" and self.ticks not in vcs.elements["list"]:
             self.ticks = "*"
         if value == "even":
-            self.ticks = {self.left: self.left, self.right: self.right}
+            left, right = vcs.minmax(self.axis)
+            self.ticks = {left: left, right: right}
         if value == "manual":
             self.ticks = {}
 
@@ -86,8 +101,9 @@ class VCSAxis(object):
     @numticks.setter
     def numticks(self, num):
         # Interpolate between left and right num times
-        step = (self.right - self.left) / float(num)
-        self.ticks = {self.left + n * step: self.left + n * step for n in range(num)}
+        left, right = vcs.minmax()
+        step = (right - left) / float(num)
+        self.ticks = {left + n * step: left + n * step for n in range(num)}
 
     @property
     def show_miniticks(self):
