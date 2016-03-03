@@ -103,10 +103,15 @@ class VCSAxis(object):
 
     @numticks.setter
     def numticks(self, num):
-        # Interpolate between left and right num times
-        left, right = vcs.minmax(self.axis)
-        step = (right - left) / float(num)
-        self.ticks = {left + n * step: left + n * step for n in range(num)}
+        if num > 0:
+            # Interpolate between left and right num times
+            left, right = vcs.minmax(self.axis)
+            step = (right - left) / float(num)
+            self.ticks = {left + n * step: left + n * step for n in range(num)}
+        else:
+            left, right = vcs.minmax(self.axis)
+            step = (right - left) / float(num)
+            self.ticks = {right + n * step: right + n * step for n in range(-1 * num)}
 
     @property
     def step(self):
