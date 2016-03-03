@@ -38,6 +38,10 @@ class VCSAxis(object):
     @ticks.setter
     def ticks(self, val):
         """Use this attribute for the dict editor."""
+        if isinstance(self.ticks, dict) and self.show_miniticks:
+            minitick_count = self.minitick_count
+        else:
+            minitick_count = 0
         if self._axis == "x1":
             self.gm.xticlabels1 = val
         if self._axis == "x2":
@@ -46,6 +50,8 @@ class VCSAxis(object):
             self.gm.yticlabels1 = val
         if self._axis == "y2":
             self.gm.yticlabels2 = val
+        if minitick_count != 0:
+            self.minitick_count = minitick_count
         if isinstance(val, str):
             # Check if there exists a listname_miniticks and assign that to miniticks
             if "%s_miniticks" % val in vcs.elements["list"]:
