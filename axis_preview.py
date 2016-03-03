@@ -10,6 +10,7 @@ class AxisPreview(vcswidget.QVCSWidget):
 	def update(self):
 		if self.canvas is None:
 			return
+		self.canvas.clear(render=False)
 		template = vcs.createtemplate(source=self.axis.tmpl)
 		template.blank()
 
