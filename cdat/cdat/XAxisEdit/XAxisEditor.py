@@ -14,6 +14,7 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         # create labels
         tickmarks_label = QtGui.QLabel("Tickmarks:")
         ticks_label = QtGui.QLabel("Ticks:")
+        step_label = QtGui.QLabel("Tick Step:")
         show_mini_label = QtGui.QLabel("Show Mini Ticks:")
         mini_per_tick_label = QtGui.QLabel("Mini-Ticks Per Tick:")
         preset_label = QtGui.QLabel("Preset:")
@@ -57,9 +58,15 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         ticks_slider = QtGui.QSlider()
         ticks_slider.setRange(1, 100)
         ticks_slider.setOrientation(QtCore.Qt.Horizontal)
+        ticks_slider.valueChanged.connect(self.updateTicks)
+
+        self.step_edit = QtGui.QLineEdit()
+        self.step_edit.editingFinished.connect(self.updateStep)
 
         ticks_row.addWidget(ticks_label)
         ticks_row.addWidget(ticks_slider)
+        ticks_row.addWidget(step_label)
+        ticks_row.addWidget(self.step_edit)
 
         # create show mini ticks check box
         show_mini_check_box = QtGui.QCheckBox()
@@ -99,6 +106,9 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
             self.vertical_layout.insertWidget(2, self.dict_widget)
             self.dict_widget.setVisible(True)
 
+        self.object.mode = button.text().lower()
+        self.preview.update()
+
     def updatePreset(self, preset):
         self.object.ticks = preset
         self.preview.update()
@@ -110,8 +120,15 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
             self.object.show_miniticks = False
         self.preview.update()
 
-
     def updateMiniTicks(self, mini_count):
         self.object.minitick_count = int(mini_count)
+        self.preview.update()
+
+    def updateTicks(self, value):
+        self.object.numticks = value
+        self.preview.update()
+
+    def updateStep(self):
+        self.object.step = self.step_edit.text()
         self.preview.update()
 

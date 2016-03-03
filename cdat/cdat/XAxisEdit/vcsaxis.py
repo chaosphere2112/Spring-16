@@ -24,14 +24,16 @@ class VCSAxis(object):
     @property
     def ticks(self):
         """Use this attribute for the dict editor."""
+        val = None
         if self._axis == "x1":
-            return self.gm.xticlabels1
+            val = self.gm.xticlabels1
         elif self._axis == "x2":
-            return self.gm.xticlabels2
+            val = self.gm.xticlabels2
         elif self._axis == "y1":
-            return self.gm.yticlabels1
+            val = self.gm.yticlabels1
         elif self._axis == "y2":
-            return self.gm.yticlabels2
+            val = self.gm.yticlabels2
+        return val
 
     @ticks.setter
     def ticks(self, val):
@@ -75,7 +77,7 @@ class VCSAxis(object):
 
     @property
     def mode(self):
-        if self.ticks == "*" or self.ticks in vcs.elements["list"]:
+        if self.ticks == "*" or str(self.ticks) in vcs.elements["list"]:
             return "auto"
         if self.step is not None:
             return "even"
@@ -84,13 +86,8 @@ class VCSAxis(object):
 
     @mode.setter
     def mode(self, value):
-        if value == "auto" and self.ticks != "*" and self.ticks not in vcs.elements["list"]:
+        if value == "auto" and isinstance(self.ticks, dict):
             self.ticks = "*"
-        if value == "even":
-            left, right = vcs.minmax(self.axis)
-            self.ticks = {left: left, right: right}
-        if value == "manual":
-            self.ticks = {}
 
     @property
     def numticks(self):
@@ -101,9 +98,39 @@ class VCSAxis(object):
     @numticks.setter
     def numticks(self, num):
         # Interpolate between left and right num times
-        left, right = vcs.minmax()
+        left, right = vcs.minmax(self.axis)
         step = (right - left) / float(num)
         self.ticks = {left + n * step: left + n * step for n in range(num)}
+
+    @property
+    def step(self):
+        ticks = self.ticks
+        if isinstance(ticks, str):
+            ticks = vcs.elements["list"][ticks]
+        ticks = sorted(ticks)
+        left, right = vcs.minmax(self.axis)
+        return (right - left) / len(ticks)
+
+    @step.setter
+    def step(self, value):
+        left, right = vcs.minmax(self.axis)
+        tick_vals = []
+
+        value = float(value)
+        if value < 0:
+            cur_val = right
+            target = left
+            comp = target.__lt__
+        else:
+            cur_val = left
+            target = right
+            comp = target.__gt__
+
+        while comp(cur_val):
+            tick_vals.append(cur_val)
+            cur_val += value
+
+        self.ticks = {i:i for i in tick_vals}
 
     @property
     def show_miniticks(self):
@@ -132,7 +159,8 @@ class VCSAxis(object):
     @property
     def minitick_count(self):
         ticks = self.ticks
-        
+        if isinstance(ticks, str):
+            ticks = vcs.elements["list"][ticks]
         axis_vals = sorted(ticks)
         mini_ticks = sorted(self.miniticks)
 
@@ -154,7 +182,10 @@ class VCSAxis(object):
 
     @minitick_count.setter
     def minitick_count(self, count):
-        axis_vals = sorted(self.ticks)
+        ticks = self.ticks
+        if isinstance(ticks, str):
+            ticks = vcs.elements["list"][ticks]
+        axis_vals = sorted(ticks)
         prev_val = axis_vals[0]
         miniticks = []
         for val in axis_vals[1:]:

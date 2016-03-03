@@ -1,5 +1,5 @@
-from cdat import vcswidget
 import vcs
+from cdat import vcswidget
 
 
 class AxisPreviewWidget(vcswidget.QVCSWidget):
@@ -10,6 +10,7 @@ class AxisPreviewWidget(vcswidget.QVCSWidget):
     def update(self):
         if self.canvas is None:
             return
+        self.canvas.clear(render=False)
         template = vcs.createtemplate(source=self.axis.tmpl)
         template.blank()
 
