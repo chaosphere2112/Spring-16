@@ -1,15 +1,14 @@
 from PySide import QtGui, QtCore
 from cdat.Base import BaseOkWindow
-from cdat.XAxisEdit import vcsaxis
+from cdat.XAxisEdit import axis_preview
 from cdat.DictEdit import DictEditor
-from cdat.LineEdit import LinePreview
 import vcs
 
 
 class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
     def __init__(self, axis):
         super(XAxisEditorWidget, self).__init__()
-        self.setPreview(LinePreview.LinePreviewWidget())
+        self.setPreview(axis_preview.AxisPreviewWidget(axis))
         self.object = axis
 
         # create labels
@@ -100,7 +99,8 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
             self.dict_widget.setVisible(True)
 
     def updatePreset(self, preset):
-        pass
+        self.object.ticks = preset
+        self.preview.update()
 
     def updateMiniTicks(self, mini_count):
         pass
