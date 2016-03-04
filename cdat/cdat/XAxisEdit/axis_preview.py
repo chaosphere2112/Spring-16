@@ -3,11 +3,12 @@ from cdat import vcswidget
 
 
 class AxisPreviewWidget(vcswidget.QVCSWidget):
-    def __init__(self, vcsaxis, parent=None):
+    def __init__(self, parent=None):
         super(AxisPreviewWidget, self).__init__(parent=parent)
-        self.axis = vcsaxis
+        self.axis = None
 
     def update(self):
+        print "updating preview"
         if self.canvas is None:
             return
         self.canvas.clear(render=False)
@@ -53,6 +54,10 @@ class AxisPreviewWidget(vcswidget.QVCSWidget):
     def resizeEvent(self, ev):
         super(AxisPreviewWidget, self).resizeEvent(ev)
         self.update()
+
+    def setAxisObject(self, axis):
+        print "setting axis in preview"
+        self.axis = axis
 
 
 if __name__ == "__main__":

@@ -67,7 +67,7 @@ class KeyValueRow(QWidget):
 
 
     def key(self):
-        if type(self.edit_key) == QLineEdit:
+        if isinstance(self.edit_key, QLineEdit):
             return self.edit_key.text()
         else:
             return self.edit_key.itemText(self.edit_key.currentIndex())
