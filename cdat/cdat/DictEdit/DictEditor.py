@@ -235,8 +235,8 @@ class DictEditorWidget(QWidget):
                 self.removeRow(row_widget)
                 row = self.rows.takeAt(0)
 
-        for key, value in dictionary.items():
-            self.insertRow(key, value)
+        for key in sorted(dictionary.keys()):
+            self.insertRow(key, dictionary[key])
 
         self.clearing = False
 

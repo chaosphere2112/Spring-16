@@ -5,9 +5,12 @@ from cdat.DictEdit import DictEditor
 import vcs
 
 
-class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
+class YAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
     def __init__(self, parent=None):
-        super(XAxisEditorWidget, self).__init__()
+        super(YAxisEditorWidget, self).__init__()
+
+        # create layout so you can set the preview
+        self.horizontal_layout = QtGui.QHBoxLayout()
         self.setPreview(axis_preview.AxisPreviewWidget())
         self.state = None
 
@@ -48,13 +51,14 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         self.tickmark_button_group.buttonClicked.connect(self.updateTickmark)
 
         # create preset combo box
-        preset_box = QtGui.QComboBox()
-        preset_box.addItem("default")
-        preset_box.addItems(vcs.listelements("list"))
-        preset_box.currentIndexChanged[str].connect(self.updatePreset)
+        # This in only being tracked for debugging
+        self.preset_box = QtGui.QComboBox()
+        self.preset_box.addItem("default")
+        self.preset_box.addItems(vcs.listelements("list"))
+        self.preset_box.currentIndexChanged[str].connect(self.updatePreset)
 
         preset_row.addWidget(preset_label)
-        preset_row.addWidget(preset_box)
+        preset_row.addWidget(self.preset_box)
 
         # create slider for Ticks
         self.ticks_slider = QtGui.QSlider()
@@ -86,7 +90,6 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         show_mini_check_box = QtGui.QCheckBox()
         show_mini_check_box.stateChanged.connect(self.updateShowMiniTicks)
 
-
         # create mini tick spin box
         mini_tick_box = QtGui.QSpinBox()
         mini_tick_box.setRange(0, 255)
@@ -97,9 +100,23 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         mini_ticks_row.addWidget(mini_per_tick_label)
         mini_ticks_row.addWidget(mini_tick_box)
 
-        self.vertical_layout.insertLayout(1, tickmarks_row)
-        self.vertical_layout.insertWidget(2, self.preset_widget)
-        self.vertical_layout.insertLayout(3, mini_ticks_row)
+        self.adjuster_layout = QtGui.QVBoxLayout()
+
+        self.adjuster_layout.insertLayout(0, tickmarks_row)
+        self.adjuster_layout.insertWidget(1, self.preset_widget)
+        self.adjuster_layout.insertLayout(2, mini_ticks_row)
+
+        self.horizontal_layout.addLayout(self.adjuster_layout)
+
+        self.vertical_layout.insertLayout(0, self.horizontal_layout)
+
+    def setPreview(self, preview):
+        if self.preview:
+            self.horizontal_layout.removeWidget(self.preview)
+            self.preview.deleteLater()
+
+        self.preview = preview
+        self.horizontal_layout.insertWidget(0, self.preview)
 
     def setAxisObject(self, axis_obj):
         print "setting axis object"
@@ -108,20 +125,22 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         self.preview.update()
 
     def updateTickmark(self, button):
-        while self.vertical_layout.count() > 4:
-            widget = self.vertical_layout.takeAt(2).widget()
+        while self.adjuster_layout.count() > 2:
+            widget = self.adjuster_layout.takeAt(1).widget()
             widget.setVisible(False)
 
         if button.text() == "Auto":
-            self.vertical_layout.insertWidget(2, self.preset_widget)
+            self.adjuster_layout.insertWidget(1, self.preset_widget)
+
+            print self.preset_box.currentText(), self.preset_box.currentIndex()
             self.preset_widget.setVisible(True)
         elif button.text() == "Even":
-            self.vertical_layout.insertWidget(2, self.ticks_widget)
+            self.adjuster_layout.insertWidget(1, self.ticks_widget)
             self.ticks_widget.setVisible(True)
             self.state = "count"
         elif button.text() == "Manual":
-            self.vertical_layout.insertWidget(2, self.dict_widget)
-            print self.object.ticks_as_dict()
+            self.adjuster_layout.insertWidget(1, self.dict_widget)
+            print "TICKS AS DICT:", self.object.ticks_as_dict()
             self.dict_widget.setDict(self.object.ticks_as_dict())
             self.dict_widget.setVisible(True)
 
@@ -132,7 +151,7 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         if preset == "default":
             self.object.ticks = "*"
         else:
-           self.object.ticks = preset
+            self.object.ticks = preset
         self.preview.update()
 
     def updateShowMiniTicks(self, state):
@@ -191,9 +210,3 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
                 self.step_edit.setText(pos_val)
 
         self.preview.update()
-
-
-
-
-
-

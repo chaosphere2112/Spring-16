@@ -205,8 +205,11 @@ class VCSAxis(object):
 
     def ticks_as_dict(self):
         ticks = self.ticks
+        print "TICKS IN VCSAXIS OBJECT: ", ticks
         if isinstance(ticks, str):
+            print "Is string"
             ticks = vcs.elements["list"][ticks]
+            print "NEW TICKS: ", ticks
         return ticks
 
     def save(self, name):
