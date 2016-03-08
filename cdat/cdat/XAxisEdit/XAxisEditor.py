@@ -6,7 +6,7 @@ import vcs
 
 
 class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
-    def __init__(self, parent=None):
+    def __init__(self, axis, parent=None):
         super(XAxisEditorWidget, self).__init__()
         self.setPreview(axis_preview.AxisPreviewWidget())
         self.state = None
@@ -65,15 +65,14 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         # create step edit box
 
         step_validator = QtGui.QDoubleValidator()
-        step_validator.setBottom(1)
         self.step_edit = QtGui.QLineEdit()
         self.step_edit.setValidator(step_validator)
-        self.step_edit.textEdited.connect(lambda: QtCore.QTimer.singleShot(2000, self.updateStep))
+        self.step_edit.textChanged.connect(lambda: QtCore.QTimer.singleShot(1000, self.updateStep))
         self.step_edit.editingFinished.connect(self.updateStep)
 
         # create negative check box
         self.negative_check = QtGui.QCheckBox()
-        self.negative_check.stateChanged.connect(self.updateTickSign)
+        self.negative_check.clicked.connect(self.updateTickSign)
 
         ticks_row.addWidget(negative_label)
         ticks_row.addWidget(self.negative_check)
@@ -150,45 +149,60 @@ class XAxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
 
         if self.negative_check.checkState() == QtCore.Qt.Checked:
             self.object.numticks = -value
+            self.step_edit.setText(str(-self.object.step))
         else:
             self.object.numticks = value
+            self.step_edit.setText(str(self.object.step))
         self.state = "count"
         self.preview.update()
-        self.step_edit.setText(str(self.object.step))
+
 
     def updateStep(self):
         print "updating step"
-        cur_val = self.step_edit.text()
-        if self.negative_check.checkState() == QtCore.Qt.Checked:
-            cur_val = str(-float(cur_val))
+        try:
+            cur_val = float(self.step_edit.text())
+        except:
+            return
+        if cur_val < 0:
+            self.negative_check.setCheckState(QtCore.Qt.Checked)
+        else:
+            self.negative_check.setCheckState(QtCore.Qt.Unchecked)
         self.object.step = cur_val
         self.state = "step"
         self.preview.update()
         self.ticks_slider.setValue(self.object.numticks)
+
 
     def updateAxisWithDict(self, dict):
         float_dict = {float(key): value for key, value in dict.items()}
         self.object.ticks = float_dict
         self.preview.update()
 
-    def updateTickSign(self, state):
-        if state == QtCore.Qt.Checked:
-            if self.state == "count":
-                value = self.object.numticks
+
+    def updateTickSign(self):
+        checked = self.negative_check.isChecked()
+        # probably a better way of doing this
+        if not self.object.numticks:
+            print "Not numticks"
+            self.step_edit.setText(str(self.object.step))
+            self.updateStep()
+
+        val = float(self.step_edit.text())
+        print "VAL:", val, "-VAL:", -val
+
+        if self.state == "count":
+            value = self.object.numticks
+            if checked == True:
+                print "NUMTICKS:", value
                 self.object.numticks = -value
-            elif self.state == "step":
-                neg_val = -float(self.step_edit.text())
-                self.step_edit.setText(str(abs(neg_val)))
-                self.object.step = str(neg_val)
-        else:
-            if self.state == "count":
-                value = self.object.numticks
+            else:
                 self.object.numticks = value
-            elif self.state == "step":
-                pos_val = abs(float(self.step_edit.text()))
-                pos_val = str(pos_val)
-                self.object.step = pos_val
-                self.step_edit.setText(pos_val)
+
+
+        if self.state == "step":
+            self.object.step = str(-val)
+
+        self.step_edit.setText(str(-val))
 
         self.preview.update()
 

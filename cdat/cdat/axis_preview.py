@@ -6,9 +6,14 @@ class AxisPreviewWidget(vcswidget.QVCSWidget):
     def __init__(self, parent=None):
         super(AxisPreviewWidget, self).__init__(parent=parent)
         self.axis = None
+        self.visibilityChanged.connect(self.visibility_toggled)
+
+    def visibility_toggled(self, showing):
+        if showing:
+            self.update()
 
     def update(self):
-        print "updating preview"
+
         if self.canvas is None:
             return
         self.canvas.clear(render=False)
@@ -56,7 +61,7 @@ class AxisPreviewWidget(vcswidget.QVCSWidget):
         self.update()
 
     def setAxisObject(self, axis):
-        print "setting axis in preview"
+        # memory leak from resetting axis
         self.axis = axis
 
 

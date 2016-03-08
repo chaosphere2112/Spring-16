@@ -45,7 +45,7 @@ def dictEmitted(d):
     print "D:", d
     for key, value in d.items():
         print str(key) + ": " + str(value)
-        assert key != "" and value != ""
+        assert key != ""
 
 
 def test_insert(qtbot, editors):
@@ -106,9 +106,9 @@ def test_color_change(qtbot, editors):
         qtbot.keyPress(d_e.key_value_rows[1].edit_key, Qt.Key_Enter)
 
         if index == 0:
-            correct_keys = ['taco', 'pizza']
+            correct_keys = ['quesadilla', 'pizza']
         else:
-            correct_keys = ['potato', 'pizza']
+            correct_keys = ['carrot', 'pizza']
 
         cur_keys = []
         for row in d_e.key_value_rows:

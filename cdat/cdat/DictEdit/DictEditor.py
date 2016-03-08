@@ -1,6 +1,7 @@
 from PySide.QtCore import *
 from PySide.QtGui import *
 from functools import partial
+import math
 
 
 class KeyValueRow(QWidget):
@@ -14,6 +15,7 @@ class KeyValueRow(QWidget):
         super(KeyValueRow, self).__init__(parent=parent)
         wrap = QHBoxLayout()
         self.valid_keys = valid_keys
+        self.setMinimumHeight(40)
 
         if valid_keys:
             self.edit_key = QComboBox()
@@ -22,7 +24,6 @@ class KeyValueRow(QWidget):
             self.edit_key = QLineEdit()
 
         self.edit_value = QLineEdit()
-
 
         if self.valid_keys:
             for i in self.valid_keys:
@@ -43,7 +44,6 @@ class KeyValueRow(QWidget):
         self.edit_value.setMinimumWidth(100)
         self.edit_value.editingFinished.connect(lambda: self.updatedValue.emit(self))
 
-
         r_button = QPushButton()
         r_button.setText("X")
         r_button.clicked.connect(lambda: self.clickedRemove.emit(self))
@@ -52,7 +52,6 @@ class KeyValueRow(QWidget):
         wrap.addWidget(self.edit_key)
         wrap.addWidget(self.edit_value)
         self.setLayout(wrap)
-
 
     def setValid(self, is_valid):
         if is_valid:
@@ -64,7 +63,6 @@ class KeyValueRow(QWidget):
         self.edit_key.setValidator(validator)
         validator.correctInput.connect(partial(self.setValid, True))
         validator.inputInvalid.connect(partial(self.setValid, False))
-
 
     def key(self):
         if isinstance(self.edit_key, QLineEdit):
@@ -88,7 +86,6 @@ class KeyValueRow(QWidget):
 
 
 class InputChecker(QValidator):
-
     inputInvalid = Signal()
     correctInput = Signal()
 
@@ -96,7 +93,6 @@ class InputChecker(QValidator):
         super(InputChecker, self).__init__()
         self.editor = editor
         self.index = index
-
 
     def validate(self, input, pos):
         keys = []
@@ -121,18 +117,24 @@ class DictEditorWidget(QWidget):
         self.key_value_rows = []
         self.rows = QVBoxLayout()
         self.clearing = False
+        rec = QApplication.desktop().screenGeometry()
+        self.setMaximumHeight(rec.height() * .8)
 
-        button = QVBoxLayout()
         wrap = QVBoxLayout()
         add_button = QPushButton()
         add_button.setText("New Line")
         add_button.clicked.connect(self.insertRow)
-        button.addWidget(add_button)
+
+        scroll_widget = QWidget()
+        scroll_widget.setLayout(self.rows)
+        self.scroll_area = QScrollArea()
+        self.scroll_area.setWidget(scroll_widget)
+        self.scroll_area.setWidgetResizable(True)
+
 
         self.setLayout(wrap)
-        wrap.addLayout(self.rows)
-        wrap.addLayout(button)
-
+        wrap.addWidget(self.scroll_area)
+        wrap.addWidget(add_button)
 
     # Update Combo Boxes
     def updateCBoxes(self, cur_row):
@@ -154,27 +156,22 @@ class DictEditorWidget(QWidget):
         for row in self.key_value_rows:
             l_text = row.key()
             r_text = row.value()
-            if l_text in keys or l_text == "" or r_text == "":
-                return (False, False)
-
-            keys.append(l_text)
-            values.append(r_text)
+            if l_text not in keys and l_text != "":
+                keys.append(l_text)
+                values.append(r_text)
 
         return (keys, values)
 
-
     def emitSignal(self):
 
-            keys, values = self.checkKeyValues()
-            if keys and values:
-                self.dictEdited.emit(dict(zip(keys, values)))
-
-
+        keys, values = self.checkKeyValues()
+        if keys and values:
+            self.dictEdited.emit(dict(zip(keys, values)))
 
     # populate if dictionary is given
     def insertRow(self, key="", value=""):
 
-        if self.valid_keys and self.rows.count() >= len(self.valid_keys)-1:
+        if self.valid_keys and self.rows.count() >= len(self.valid_keys) - 1:
             return
 
         new_row = KeyValueRow(key, value, self.valid_keys, self)
@@ -185,13 +182,11 @@ class DictEditorWidget(QWidget):
         if not self.valid_keys:
             validator = InputChecker(self.rows.count(), self)
             new_row.setKeyValidator(validator)
-
         if self.valid_keys:
             new_row.updatedKey.connect(self.updateCBoxes)
 
         self.rows.addWidget(new_row)
         self.key_value_rows.append(new_row)
-
 
     def removeRow(self, row_widget):
         layout = row_widget.layout()
@@ -213,7 +208,6 @@ class DictEditorWidget(QWidget):
         if not self.clearing:
             self.emitSignal()
 
-
     # set valid keys to be selected
     # must call setValidKeys before calling setDict
     def setValidKeys(self, keys):
@@ -224,9 +218,7 @@ class DictEditorWidget(QWidget):
     def setDict(self, dictionary):
 
         self.clearing = True
-
         if self.rows.count() > 0:
-
             row = self.rows.takeAt(0)
 
             while row:
