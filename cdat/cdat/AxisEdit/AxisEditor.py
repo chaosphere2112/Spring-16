@@ -186,8 +186,6 @@ class AxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         except ValueError:
             return
 
-        self.step_edit.setText(str(cur_val))
-
         if cur_val < 0:
             self.negative_check.setCheckState(QtCore.Qt.Checked)
         else:
@@ -209,7 +207,7 @@ class AxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         # probably a better way of doing this
         if not self.object.numticks:
             self.step_edit.setText(str(self.object.step))
-            self.updateStep()
+            self.state = "step"
 
         val = float(self.step_edit.text())
 

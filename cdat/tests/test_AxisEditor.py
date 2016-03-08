@@ -32,7 +32,7 @@ def test_presets(qtbot, editors):
 
 def test_miniticks(editors):
     for index, editor in enumerate(editors):
-        # dont need this line once default is fixed
+        # don't need this line once default is fixed
         editor.updatePreset("lat5")
 
         button_list = editor.tickmark_button_group.buttons()
@@ -63,7 +63,7 @@ def test_step_ticks_negative(qtbot, editors):
 
         editor.step_edit.setText("45")
         qtbot.keyPress(editor.step_edit, QtCore.Qt.Key_Enter)
-        assert editor.step_edit.text() == "45.0"
+        assert editor.object.step == 45.0
 
         # set negative
         editor.negative_check.clicked.emit()

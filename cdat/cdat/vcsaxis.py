@@ -212,4 +212,3 @@ class VCSAxis(object):
     def save(self, name):
         vcs.elements["list"][name] = self.ticks
         vcs.elements["list"][name + "_miniticks"] = self.miniticks
-

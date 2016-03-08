@@ -1,14 +1,11 @@
 from PySide.QtCore import *
 from PySide.QtGui import *
 from functools import partial
-import math
 
 
 class KeyValueRow(QWidget):
     clickedRemove = Signal(QWidget)
-
     updatedKey = Signal(QWidget)
-
     updatedValue = Signal(QWidget)
 
     def __init__(self, key="", value="", valid_keys=None, parent=None):
@@ -19,7 +16,6 @@ class KeyValueRow(QWidget):
 
         if valid_keys:
             self.edit_key = QComboBox()
-
         else:
             self.edit_key = QLineEdit()
 
@@ -141,7 +137,6 @@ class DictEditorWidget(QWidget):
 
         for row in self.key_value_rows:
             check_text = row.key()
-
             # check if boxes match and set to blank if so
             if row != cur_row:
                 if check_text == cur_text:
@@ -158,7 +153,6 @@ class DictEditorWidget(QWidget):
             if l_text not in keys and l_text != "":
                 keys.append(l_text)
                 values.append(r_text)
-
         return (keys, values)
 
     def emitSignal(self):
@@ -168,7 +162,6 @@ class DictEditorWidget(QWidget):
 
     # populate if dictionary is given
     def insertRow(self, key="", value=""):
-
         if self.valid_keys and self.rows.count() >= len(self.valid_keys) - 1:
             return
 
@@ -192,8 +185,6 @@ class DictEditorWidget(QWidget):
 
         while child:
             widget = child.widget()
-
-            # delete Widget
             child = layout.takeAt(0)
             widget.deleteLater()
 
@@ -221,7 +212,6 @@ class DictEditorWidget(QWidget):
 
             while row:
                 row_widget = row.widget()
-
                 self.removeRow(row_widget)
                 row = self.rows.takeAt(0)
 
