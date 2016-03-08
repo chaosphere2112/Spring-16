@@ -52,13 +52,13 @@ class AxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
 
         # create preset combo box
         # This in only being tracked for debugging
-        self.preset_box = QtGui.QComboBox()
-        self.preset_box.addItem("default")
-        self.preset_box.addItems(vcs.listelements("list"))
-        self.preset_box.currentIndexChanged[str].connect(self.updatePreset)
+        preset_box = QtGui.QComboBox()
+        preset_box.addItem("default")
+        preset_box.addItems(vcs.listelements("list"))
+        preset_box.currentIndexChanged[str].connect(self.updatePreset)
 
         preset_row.addWidget(preset_label)
-        preset_row.addWidget(self.preset_box)
+        preset_row.addWidget(preset_box)
 
         # create slider for Ticks
         self.ticks_slider = QtGui.QSlider()
@@ -110,7 +110,6 @@ class AxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         self.setPreview(axis_preview.AxisPreviewWidget())
 
     def setPreview(self, preview):
-
         if self.preview:
             raise Exception("Preview already set")
 
@@ -124,7 +123,6 @@ class AxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
             self.adjuster_layout.insertWidget(0, self.preview)
 
     def setAxisObject(self, axis_obj):
-
         self.object = axis_obj
         self.preview.setAxisObject(self.object)
         self.preview.update()
@@ -133,22 +131,21 @@ class AxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
     def updateTickmark(self, button):
         if self.axis == "x":
             index = 2
-            count = 3
         elif self.axis == "y":
             index = 1
-            count = 2
-        while self.adjuster_layout.count() > count:
+        while self.adjuster_layout.count() > index + 1:
             widget = self.adjuster_layout.takeAt(index).widget()
             widget.setVisible(False)
 
         if button.text() == "Auto":
             self.adjuster_layout.insertWidget(index, self.preset_widget)
-
             self.preset_widget.setVisible(True)
+
         elif button.text() == "Even":
             self.adjuster_layout.insertWidget(index, self.ticks_widget)
             self.ticks_widget.setVisible(True)
             self.state = "count"
+
         elif button.text() == "Manual":
             self.adjuster_layout.insertWidget(index, self.dict_widget)
             self.dict_widget.setDict(self.object.ticks_as_dict())
@@ -165,10 +162,7 @@ class AxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         self.preview.update()
 
     def updateShowMiniTicks(self, state):
-        if state == QtCore.Qt.Checked:
-            self.object.show_miniticks = True
-        elif state == QtCore.Qt.Unchecked:
-            self.object.show_miniticks = False
+        self.object.show_miniticks = (state == QtCore.Qt.Checked)
         self.preview.update()
 
     def updateMiniTicks(self, mini_count):
@@ -177,7 +171,6 @@ class AxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
 
     # Update tick count
     def updateTicks(self, value):
-
         if self.negative_check.checkState() == QtCore.Qt.Checked:
             self.object.numticks = -value
             self.step_edit.setText(str(-self.object.step))
@@ -187,21 +180,23 @@ class AxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         self.state = "count"
         self.preview.update()
 
-
     def updateStep(self):
         try:
             cur_val = float(self.step_edit.text())
-            self.step_edit.setText(str(cur_val))
-        except:
+        except ValueError:
             return
+
+        self.step_edit.setText(str(cur_val))
+
         if cur_val < 0:
             self.negative_check.setCheckState(QtCore.Qt.Checked)
         else:
             self.negative_check.setCheckState(QtCore.Qt.Unchecked)
         self.object.step = cur_val
         self.state = "step"
-        self.preview.update()
         self.ticks_slider.setValue(self.object.numticks)
+
+        self.preview.update()
 
     def updateAxisWithDict(self, dict):
         float_dict = {float(key): value for key, value in dict.items()}
@@ -209,8 +204,8 @@ class AxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         self.preview.update()
 
     def updateTickSign(self):
-
         checked = self.negative_check.isChecked()
+
         # probably a better way of doing this
         if not self.object.numticks:
             self.step_edit.setText(str(self.object.step))
@@ -220,11 +215,10 @@ class AxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
 
         if self.state == "count":
             value = self.object.numticks
-            if checked == True:
+            if checked:
                 self.object.numticks = -value
             else:
                 self.object.numticks = value
-
 
         if self.state == "step":
             self.object.step = str(-val)

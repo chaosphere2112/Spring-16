@@ -61,27 +61,4 @@ class AxisPreviewWidget(vcswidget.QVCSWidget):
         self.update()
 
     def setAxisObject(self, axis):
-        # memory leak from resetting axis
         self.axis = axis
-
-
-if __name__ == "__main__":
-    import vcsaxis
-    from PySide import QtGui, QtCore
-    import cdms2
-
-    app = QtGui.QApplication([])
-    box = vcs.createboxfill()
-    tmpl = vcs.createtemplate()
-    var = cdms2.open(vcs.sample_data + "/clt.nc")("clt")
-    axis = vcsaxis.VCSAxis(box, tmpl, "x1", var)
-    w = QtGui.QWidget()
-    l = QtGui.QVBoxLayout()
-    w.setLayout(l)
-    preview = AxisPreview(axis)
-    l.addWidget(preview)
-    pb = QtGui.QPushButton("Update")
-    l.addWidget(pb)
-    pb.clicked.connect(preview.update)
-    w.show()
-    app.exec_()

@@ -131,7 +131,6 @@ class DictEditorWidget(QWidget):
         self.scroll_area.setWidget(scroll_widget)
         self.scroll_area.setWidgetResizable(True)
 
-
         self.setLayout(wrap)
         wrap.addWidget(self.scroll_area)
         wrap.addWidget(add_button)
@@ -163,7 +162,6 @@ class DictEditorWidget(QWidget):
         return (keys, values)
 
     def emitSignal(self):
-
         keys, values = self.checkKeyValues()
         if keys and values:
             self.dictEdited.emit(dict(zip(keys, values)))
