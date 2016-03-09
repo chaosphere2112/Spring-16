@@ -38,7 +38,7 @@ class VCSAxis(object):
     @ticks.setter
     def ticks(self, val):
         """Use this attribute for the dict editor."""
-        if isinstance(self.ticks, dict) and self.show_miniticks:
+        if self.show_miniticks:
             minitick_count = self.minitick_count
         else:
             minitick_count = 0
@@ -141,7 +141,7 @@ class VCSAxis(object):
             tick_vals.append(cur_val)
             cur_val += value
 
-        self.ticks = {i:i for i in tick_vals}
+        self.ticks = {i: i for i in tick_vals}
 
     @property
     def show_miniticks(self):
@@ -193,9 +193,7 @@ class VCSAxis(object):
 
     @minitick_count.setter
     def minitick_count(self, count):
-        ticks = self.ticks
-        if isinstance(ticks, str):
-            ticks = vcs.elements["list"][ticks]
+        ticks = self.ticks_as_dict()
         axis_vals = sorted(ticks)
         prev_val = axis_vals[0]
         miniticks = []
@@ -205,8 +203,12 @@ class VCSAxis(object):
             prev_val = val
         self.miniticks = {t: "" for t in miniticks}
 
+    def ticks_as_dict(self):
+        ticks = self.ticks
+        if isinstance(ticks, str):
+            ticks = vcs.elements["list"][ticks]
+        return ticks
+
     def save(self, name):
         vcs.elements["list"][name] = self.ticks
         vcs.elements["list"][name + "_miniticks"] = self.miniticks
-        self.saveinitialfile()
-

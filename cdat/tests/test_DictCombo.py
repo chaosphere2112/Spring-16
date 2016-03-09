@@ -55,7 +55,7 @@ def dictEmitted(d):
     print "D:", d
     for key, value in d.items():
         print str(key) + ": " + str(value)
-        assert key != "" and value != ""
+        assert key != ""
 
 
 def test_insert(qtbot, editors):
@@ -89,14 +89,14 @@ def test_duplicates(editors):
         # test duplicate items
 
         if index == 0:
-            d_e.key_value_rows[0].setKey(key_list[5])
+            d_e.key_value_rows[0].setKey(key_list[4])
         else:
-            d_e.key_value_rows[1].setKey(key_list[1])
+            d_e.key_value_rows[1].setKey(key_list[2])
 
         if index == 0:
-            assert d_e.key_value_rows[0].key() == "quesadilla"
+            assert d_e.key_value_rows[0].key() == "taco"
         else:
-            assert d_e.key_value_rows[1].key() == "potato"
+            assert d_e.key_value_rows[1].key() == "carrot"
 
 
 def test_remove(qtbot, editors):

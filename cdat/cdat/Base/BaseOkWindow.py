@@ -34,7 +34,6 @@ class BaseOkWindowWidget(QtGui.QWidget):
     def setPreview(self, preview):
         if self.preview:
             self.vertical_layout.removeWidget(self.preview)
-            print "P: ", self.preview
             self.preview.deleteLater()
 
         self.preview = preview

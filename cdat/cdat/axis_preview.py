@@ -3,11 +3,17 @@ from cdat import vcswidget
 
 
 class AxisPreviewWidget(vcswidget.QVCSWidget):
-    def __init__(self, vcsaxis, parent=None):
+    def __init__(self, parent=None):
         super(AxisPreviewWidget, self).__init__(parent=parent)
-        self.axis = vcsaxis
+        self.axis = None
+        self.visibilityChanged.connect(self.visibility_toggled)
+
+    def visibility_toggled(self, showing):
+        if showing:
+            self.update()
 
     def update(self):
+
         if self.canvas is None:
             return
         self.canvas.clear(render=False)
@@ -54,24 +60,5 @@ class AxisPreviewWidget(vcswidget.QVCSWidget):
         super(AxisPreviewWidget, self).resizeEvent(ev)
         self.update()
 
-
-if __name__ == "__main__":
-    import vcsaxis
-    from PySide import QtGui, QtCore
-    import cdms2
-
-    app = QtGui.QApplication([])
-    box = vcs.createboxfill()
-    tmpl = vcs.createtemplate()
-    var = cdms2.open(vcs.sample_data + "/clt.nc")("clt")
-    axis = vcsaxis.VCSAxis(box, tmpl, "x1", var)
-    w = QtGui.QWidget()
-    l = QtGui.QVBoxLayout()
-    w.setLayout(l)
-    preview = AxisPreview(axis)
-    l.addWidget(preview)
-    pb = QtGui.QPushButton("Update")
-    l.addWidget(pb)
-    pb.clicked.connect(preview.update)
-    w.show()
-    app.exec_()
+    def setAxisObject(self, axis):
+        self.axis = axis
