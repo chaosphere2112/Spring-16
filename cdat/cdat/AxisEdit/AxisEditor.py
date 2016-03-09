@@ -37,6 +37,11 @@ class AxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
         self.dict_widget = DictEditor.DictEditorWidget()
         self.dict_widget.dictEdited.connect(self.updateAxisWithDict)
 
+        # set up scrollable for dict editor
+        self.scroll_area = QtGui.QScrollArea()
+        self.scroll_area.setWidget(self.dict_widget)
+        self.scroll_area.setWidgetResizable(True)
+
         # Create radio buttons and group them
         self.tickmark_button_group = QtGui.QButtonGroup()
         tickmarks_row.addWidget(tickmarks_label)
@@ -147,7 +152,7 @@ class AxisEditorWidget(BaseOkWindow.BaseOkWindowWidget):
             self.state = "count"
 
         elif button.text() == "Manual":
-            self.adjuster_layout.insertWidget(index, self.dict_widget)
+            self.adjuster_layout.insertWidget(index, self.scroll_area)
             self.dict_widget.setDict(self.object.ticks_as_dict())
             self.dict_widget.setVisible(True)
 

@@ -113,22 +113,14 @@ class DictEditorWidget(QWidget):
         self.key_value_rows = []
         self.rows = QVBoxLayout()
         self.clearing = False
-        rec = QApplication.desktop().screenGeometry()
-        self.setMaximumHeight(rec.height() * .8)
 
         wrap = QVBoxLayout()
         add_button = QPushButton()
         add_button.setText("New Line")
         add_button.clicked.connect(self.insertRow)
 
-        scroll_widget = QWidget()
-        scroll_widget.setLayout(self.rows)
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidget(scroll_widget)
-        self.scroll_area.setWidgetResizable(True)
-
         self.setLayout(wrap)
-        wrap.addWidget(self.scroll_area)
+        wrap.addLayout(self.rows)
         wrap.addWidget(add_button)
 
     # Update Combo Boxes
@@ -150,7 +142,7 @@ class DictEditorWidget(QWidget):
         for row in self.key_value_rows:
             l_text = row.key()
             r_text = row.value()
-            if l_text not in keys and l_text != "":
+            if l_text and l_text not in keys:
                 keys.append(l_text)
                 values.append(r_text)
         return (keys, values)
